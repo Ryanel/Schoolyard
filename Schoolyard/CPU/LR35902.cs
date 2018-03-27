@@ -11,10 +11,10 @@ namespace Schoolyard.CPU
         // State
         public bool StateHalt { get; private set; }
         public bool StateRunning;
-        public long cycles;
+        public ulong cycles;
 
         // Statistics
-        public long instructionsExecuted = 0;
+        public ulong instructionsExecuted = 0;
 
         // Components
         public Registers regs = new Registers();
@@ -38,7 +38,7 @@ namespace Schoolyard.CPU
             StateRunning = true;
         }
 
-        public long Step()
+        public ulong Step()
         {
             if(!StateRunning)
             {
@@ -49,13 +49,13 @@ namespace Schoolyard.CPU
             // Check for interrupts before next instruction cycle
             // If there are any interrupts, do that this instruction cycle
             // Run an instruction if we're not halted
-            long cyclesBefore = cycles;
+            ulong cyclesBefore = cycles;
 
             if (!HandleInterrupts())
             {
                 if(!StateHalt)
                 {
-                    cycles += RunInstruction();
+                    cycles += (ulong)RunInstruction();
                 }
                 else
                 {

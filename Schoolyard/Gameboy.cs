@@ -63,7 +63,8 @@ namespace Schoolyard
 
         public void Step()
         {
-            long cyclesDelta = cpu.Step();
+            ulong cyclesDelta = cpu.Step();
+            ppu.Step(cyclesDelta);
         }
     }
 }

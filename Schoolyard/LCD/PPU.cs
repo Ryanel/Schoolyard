@@ -32,7 +32,7 @@ namespace Schoolyard.LCD
             framesRendered = 0;
         }
 
-        public void Step(long cycles)
+        public void Step(ulong cycles)
         {
             // Advance PPU by x cycles
         }
