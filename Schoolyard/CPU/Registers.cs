@@ -23,7 +23,6 @@ namespace Schoolyard.CPU
         public long t;
         public bool interruptsMasterEnable;
 
-
         [Flags]
         public enum RegFlags : byte
         {

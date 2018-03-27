@@ -18,6 +18,7 @@ namespace Schoolyard.LCD
 
         // Holds full image
         public byte[,] framebuffer = new byte[width, height];
+        public byte[,,] tiles; // Decoded tile data, in tileID, y, x format.
         public int framesRendered = 0;
 
         public PPUMode currentMode = PPUMode.H_BLANK;
@@ -35,10 +36,14 @@ namespace Schoolyard.LCD
         public const ulong clocksOAMRead = 80;
         public const ulong clocksVRAMRead = 172;
 
+        // Events
+        public event EventHandler OnTileUpdate;
+        public event EventHandler OnDisplayRendered;
+
         public PPU(MemoryController mem)
         {
             regs = new PPURegisters("ppuregs", 0xFF40, 0x9);
-            cram = new PPUCharacterRAM("cram", 0x8000, 0x1800);
+            cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
             this.mem = mem;
         }
 
@@ -129,6 +134,28 @@ namespace Schoolyard.LCD
             }
         }
 
+        public void DecodeTile(ushort address, byte value)
+        {
+            address &= 0x1ffe;
+
+            ushort tile = (ushort)((address >> 4) & 511);
+            ushort y = (ushort)((address >> 1) & 7);
+
+            
+            for (byte x = 0; x < 8; x++)
+            {
+                byte bitIndex = (byte)(1 << (7 - x));
+                byte a = mem.Read8((ushort)(address + 0x8000));
+                byte b = mem.Read8((ushort)(address + 0x8001));
+                tiles[tile, y, x] = (byte)((((byte)(a & bitIndex) > 0) ? 1 : 0 + (((byte)(b & bitIndex) > 0) ? 2 : 0)));
+            }
+
+            if (OnTileUpdate != null)
+            {
+                OnTileUpdate.Invoke(this, null);
+            }
+        }
+
         private void DrawScanline()
         {
             if(regs.ScanLine >= height) { // Should never hit this, but here to be safe
@@ -157,7 +184,7 @@ namespace Schoolyard.LCD
 
         private void OnRenderComplete()
         {
-
+            if(OnDisplayRendered != null) { OnDisplayRendered.Invoke(this, null); }
         }
     }
 }

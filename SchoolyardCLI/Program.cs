@@ -28,7 +28,6 @@ namespace SchoolyardCLI
             while (gameboy.cpu.StateRunning)
             {
                 gameboy.Step();
-                //gameboy.cpu.DebugPrintRegisters();
             }
 
             Console.ReadKey();

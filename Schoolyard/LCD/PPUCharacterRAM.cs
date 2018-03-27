@@ -8,6 +8,16 @@ namespace Schoolyard.LCD
 {
     public class PPUCharacterRAM : Memory.RAM
     {
-        public PPUCharacterRAM(string name, ushort addressBase, ushort size) : base(name, addressBase,size) {}
+        PPU ppu;
+        public PPUCharacterRAM(string name, ushort addressBase, ushort size, PPU ppu) : base(name, addressBase,size)
+        {
+            this.ppu = ppu;
+        }
+
+        public override void Write8(ushort address, byte val)
+        {
+            base.Write8(address, val);
+            ppu.DecodeTile(address, val);
+        }
     }
 }
