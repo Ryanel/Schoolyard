@@ -28,6 +28,8 @@ namespace Schoolyard
         {
             RAM bgData = new RAM("bg", 0x9800, 0x800);
             RAM wram   = new RAM("wram", 0xC000, 0x2000);
+            RAM oam    = new RAM("oam", 0xFE00, 0xA0);
+            Reserved r = new Reserved("resv", 0xFEA0, 0x60);
             RAM hwio   = new RAM("hwio - unmapped", 0xFF00, 0x80);
             RAM hiram  = new RAM("hiram", 0xFF80, 0x7F);
             RAM ie     = new RAM("ie", 0xFFFF, 0x01);
@@ -39,6 +41,8 @@ namespace Schoolyard
             memory.Map(ppu.cram); // 0x8000 - 0x97FF CRAM
             memory.Map(bgData);   // 0x9800 - 0x9FFF BG 1 and 2
             memory.Map(wram);     // 0xC000 - 0xDFFF Work RAM
+            memory.Map(oam);      // 0xFE00 - 0xFE9F OAM
+            memory.Map(r);        // 0xFEA0 - 0xFEFF Unmapped
             memory.Map(ppu.regs); // 0xFF40 - 0xFF47 PPU Registers
             memory.Map(hwio);     // 0xFF00 - 0xFF80 Unmapped HWIO
             memory.Map(hiram);    // 0xFF80 - 0xFFFE Zero Page

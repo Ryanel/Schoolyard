@@ -49,7 +49,6 @@ namespace Schoolyard.CPU
             new Opcode(0x1D, "dec e"               , 1, (c,i) => {return OpDecrement8(c,i,ref c.regs.e);}),
             new Opcode(0x1E, "ld e, {0:X2}"        , 2, (c,i) => {c.E = i.Operand8; return 8;}),
             new Opcode(0x1F, "rra"                 , 1, (c,i) => {c.A = c.alu.Rr(c.A, RegFlags.C, RegFlags.None, RegFlags.Z | RegFlags.H | RegFlags.N); return 4;}),
-           
             // 0x20                                 
             new Opcode(0x20, "jr nz {0:X2}"        , 2, (c,i) => {return OpJumpRelative(c,i, c.FlagZero == false); }),
             new Opcode(0x21, "ld hl, {0:X4}"       , 3, (c,i) => {c.HL = i.Operand16; return 12;}),

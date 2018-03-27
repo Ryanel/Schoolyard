@@ -83,7 +83,7 @@ namespace Schoolyard.CPU
             regs.pc += (ushort)i.code.Length;
             int cycles =  i.code.Operation(this, i);
 
-            //Console.WriteLine(i.ToString());
+            Console.WriteLine(String.Format("${0:X4} : {1}",regs.pc, i.ToString()));
 
             regs.T += cycles;
             instructionsExecuted++;

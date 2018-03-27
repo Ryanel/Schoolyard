@@ -48,7 +48,7 @@ namespace Schoolyard.LCD
             set { values[4] = value; }
         }
 
-        byte[] bgPalette = new byte[4] { 0x0, 0x1, 0x2, 0x3 };
+        public byte[] bgPalette = new byte[4] { 0x0, 0x1, 0x2, 0x3 };
 
         public byte BackgroundPalette
         {

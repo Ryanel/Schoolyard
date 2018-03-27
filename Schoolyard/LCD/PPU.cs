@@ -18,7 +18,7 @@ namespace Schoolyard.LCD
 
         // Holds full image
         public byte[,] framebuffer = new byte[width, height];
-        public byte[,,] tiles; // Decoded tile data, in tileID, y, x format.
+        public byte[,,] tiles = new byte[384, 8, 8]; // Decoded tile data, in tileID, y, x format.
         public int framesRendered = 0;
 
         public PPUMode currentMode = PPUMode.H_BLANK;
@@ -52,11 +52,13 @@ namespace Schoolyard.LCD
             modeClock = 0;
 
             framebuffer = new byte[width, height]; // Clear framebuffer
+            tiles = new byte[384, 8, 8];
             framesRendered = 0;
         }
 
         public void Step(ulong cycles)
         {
+            modeClock += cycles;
             // Advance PPU by x cycles
             switch (currentMode)
             {
@@ -156,8 +158,7 @@ namespace Schoolyard.LCD
             }
         }
 
-        private void DrawScanline()
-        {
+        private void DrawScanline() {
             if(regs.ScanLine >= height) { // Should never hit this, but here to be safe
                 return; 
             }
@@ -172,18 +173,63 @@ namespace Schoolyard.LCD
             }
         }
 
-        private void DrawBackgroundScanLine()
-        {
+        private void DrawBackgroundScanLine() {
+            bool signedTileIndex = !regs.LCDAddressMode;
+            int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
+            int tileMapAddress = !regs.LCDTileMap ? 0x9800 : 0x9C00;
+            int screenX = regs.ScrollX & 7;
+            int yPosition = (regs.ScanLine + regs.ScrollY) % 256;
+            bool window = false;
 
+            if (regs.LCDWindowOn && regs.WindowY > regs.ScrollY) // Determine if window is on
+            {
+                window = true;
+                tileMapAddress = !regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
+                yPosition = (regs.ScrollY - regs.WindowY) % 256;
+            }
+
+            int tileRow = (yPosition / 8) * 32;
+
+            for (int x = 0; x < 160; x++) {
+                int xPosition = (x + screenX) % 256; ;
+
+                if (window) {
+                    xPosition = x - regs.WindowX;
+                }
+
+                // Get tile address
+                int tileColumn = (xPosition / 8) % 256;
+                ushort tileAddress = (ushort)(tileMapAddress + tileRow + tileColumn);
+
+                // Get tile index
+                int tileIndex;
+                if (signedTileIndex)
+                {
+                    tileIndex = mem.Read8(tileAddress);
+                    if (tileIndex < 128)
+                    {
+                        tileIndex += 256;
+                    }
+                }
+                else
+                {
+                    tileIndex = (sbyte)mem.Read8(tileAddress);
+                }
+
+                // Write pixel to framebuffer
+                byte pixel = tiles[tileIndex, yPosition % 8, xPosition % 8];
+                framebuffer[x, regs.ScanLine] = regs.bgPalette[pixel];
+            }
         }
 
         private void DrawSpriteScanLine()
         {
-
+            // TODO: Sprite support
         }
 
         private void OnRenderComplete()
         {
+            framesRendered++;
             if(OnDisplayRendered != null) { OnDisplayRendered.Invoke(this, null); }
         }
     }
