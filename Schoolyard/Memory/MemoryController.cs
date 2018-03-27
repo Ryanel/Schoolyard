@@ -8,9 +8,15 @@ namespace Schoolyard.Memory
         private List<MemoryDevice> devices = new List<MemoryDevice>();
 
         public void Map(MemoryDevice device) { devices.Add(device); }
+        public void Map(MemoryDevice device, bool rom) {
+            devices.Add(device);
+            this.rom = device;
+        }
         public void UnMap(MemoryDevice device) { devices.Remove(device); }
 
         public string serialOut = ""; // Hack to allow easy serial output
+
+        private MemoryDevice rom;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryDevice GetMappedDevice(ushort address)
@@ -34,6 +40,14 @@ namespace Schoolyard.Memory
         
         public byte Read8(ushort address)
         {
+            // Optimization: 
+            // Most data is read from the ROM. This fast-tracks all reads to rom out of a loop,
+            // making it a O(1) operation to read from ROM instead of a O(n) operation
+            if(address < 0x8000)
+            {
+                return rom.Read8(address);
+            }
+
             MemoryDevice dev = GetMappedDevice(address);
             if (dev != null) {
                 return dev.Read8(address);
@@ -85,6 +99,7 @@ namespace Schoolyard.Memory
         public void Reset()
         {
             devices.Clear();
+            rom = null;
         }
     }
 }

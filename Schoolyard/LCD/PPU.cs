@@ -26,6 +26,7 @@ namespace Schoolyard.LCD
 
         public PPURegisters regs;
         public PPUCharacterRAM cram;
+        public RAM bgram;
         public MemoryController mem;
 
         // Constants
@@ -44,6 +45,7 @@ namespace Schoolyard.LCD
         {
             regs = new PPURegisters("ppuregs", 0xFF40, 0x9);
             cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
+            bgram = new RAM("bg", 0x9800, 0x800);
             this.mem = mem;
         }
 
@@ -205,7 +207,7 @@ namespace Schoolyard.LCD
                 int tileIndex;
                 if (signedTileIndex)
                 {
-                    tileIndex = mem.Read8(tileAddress);
+                    tileIndex = bgram.Read8(tileAddress); // Read directly from cram for increased performance
                     if (tileIndex < 128)
                     {
                         tileIndex += 256;
@@ -213,7 +215,7 @@ namespace Schoolyard.LCD
                 }
                 else
                 {
-                    tileIndex = (sbyte)mem.Read8(tileAddress);
+                    tileIndex = (sbyte)bgram.Read8(tileAddress);
                 }
 
                 // Write pixel to framebuffer

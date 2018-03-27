@@ -49,7 +49,7 @@ namespace Schoolyard
                     return false;
             }
 
-            gameboy.memory.Map(mbc);
+            gameboy.memory.Map(mbc, true);
 
 
             return true;
