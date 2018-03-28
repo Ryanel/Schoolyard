@@ -43,7 +43,7 @@ namespace Schoolyard.LCD
 
         public PPU(MemoryController mem)
         {
-            regs = new PPURegisters("ppuregs", 0xFF40, 0x9);
+            regs = new PPURegisters("ppuregs", 0xFF40, 0xB);
             cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
             bgram = new RAM("bg", 0x9800, 0x800);
             this.mem = mem;
@@ -176,18 +176,25 @@ namespace Schoolyard.LCD
         }
 
         private void DrawBackgroundScanLine() {
+            // Cache properties we'll need
+            byte scanLine = regs.ScanLine;
+            byte scrollY = regs.ScrollY;
+            byte windowY = regs.WindowY;
+            byte windowX = 0x00; // Load this only if we use the window
+
             bool signedTileIndex = !regs.LCDAddressMode;
             int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
             int tileMapAddress = !regs.LCDTileMap ? 0x9800 : 0x9C00;
             int screenX = regs.ScrollX & 7;
-            int yPosition = (regs.ScanLine + regs.ScrollY) % 256;
+            int yPosition = (scanLine + scrollY) % 256;
             bool window = false;
 
-            if (regs.LCDWindowOn && regs.WindowY > regs.ScrollY) // Determine if window is on
+            if (regs.LCDWindowOn && windowY > scrollY) // Determine if window is on
             {
                 window = true;
                 tileMapAddress = !regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
-                yPosition = (regs.ScrollY - regs.WindowY) % 256;
+                yPosition = (scrollY - windowY) % 256;
+                windowX = regs.WindowX;
             }
 
             int tileRow = (yPosition / 8) * 32;
@@ -196,7 +203,7 @@ namespace Schoolyard.LCD
                 int xPosition = (x + screenX) % 256; ;
 
                 if (window) {
-                    xPosition = x - regs.WindowX;
+                    xPosition = x - windowX;
                 }
 
                 // Get tile address
@@ -220,7 +227,7 @@ namespace Schoolyard.LCD
 
                 // Write pixel to framebuffer
                 byte pixel = tiles[tileIndex, yPosition % 8, xPosition % 8];
-                framebuffer[x, regs.ScanLine] = regs.bgPalette[pixel];
+                framebuffer[x, scanLine] = regs.bgPalette[pixel];
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Schoolyard.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Schoolyard.CPU
         public bool StateHalt { get; private set; }
         public bool StateRunning;
         public ulong cycles;
-
+        public bool haltBug = false;
         // Statistics
         public ulong instructionsExecuted = 0;
 
@@ -36,6 +37,7 @@ namespace Schoolyard.CPU
             cycles = 0;
             StateHalt = false;
             StateRunning = true;
+            haltBug = false;
         }
 
         public ulong Step()
@@ -71,6 +73,32 @@ namespace Schoolyard.CPU
         /// <returns>True if interrupt was fired</returns>
         public bool HandleInterrupts()
         {
+            byte flags = mem.Read8(0xFF0F);
+            byte enable = mem.Read8(0xFFFF);
+            if ((regs.IME == true) && (enable != 0) && (flags != 0))
+            {
+                byte fired = (byte)(enable & flags);
+                if (haltBug)
+                {
+                    StateHalt = false;
+                    cycles += 0;
+                }
+                if ((fired & 0x01) != 0) // VBlank
+                {
+                    StateHalt = false;
+                    mem.Write8(0xFF85, 0); // Set to 0 on vblank
+                    //Console.WriteLine("[CPU] Interrupt VBLANK @ " + ByteUtilities.HexString(PC, true));
+                    // Clear flag
+                    // Call interrupt
+                    regs.interruptsMasterEnable = false;
+                    unchecked { flags &= (byte)~(byte)0x1;}
+
+                    Push16(PC);
+                    PC = 0x0040;
+                    cycles += 12;
+
+                }
+            }
             return false;
         }
 
@@ -83,7 +111,7 @@ namespace Schoolyard.CPU
             regs.pc += (ushort)i.code.Length;
             int cycles =  i.code.Operation(this, i);
 
-            Console.WriteLine(String.Format("${0:X4} : {1}",regs.pc, i.ToString()));
+            //Console.WriteLine(String.Format("${0:X4} : {1}",regs.pc, i.ToString()));
 
             regs.T += cycles;
             instructionsExecuted++;
@@ -93,6 +121,7 @@ namespace Schoolyard.CPU
         public void Halt()
         {
             StateHalt = true;
+            // TODO: Set haltbug flag here
         }
 
         public void Stop()

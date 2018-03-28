@@ -22,29 +22,29 @@ namespace Schoolyard.LCD
 
         public byte LCDControl
         {
-            get { return Read8(0xFF40); }
+            get { return values[0x0]; }
             set { values[0] = value; }
         }
 
         public byte Status
         {
-            get { return Read8(0xFF41); }
+            get { return values[0x1]; }
             set { values[1] = value; }
         }
 
         public byte ScrollY
         {
-            get { return Read8(0xFF42); }
+            get { return values[0x2]; }
         }
 
         public byte ScrollX
         {
-            get { return Read8(0xFF43); }
+            get { return values[0x3]; }
         }
 
         public byte ScanLine
         {
-            get { return Read8(0xFF44); }
+            get { return values[0x4]; }
             set { values[4] = value; }
         }
 
@@ -64,12 +64,12 @@ namespace Schoolyard.LCD
 
         public byte WindowY
         {
-            get { return Read8(0xFF4A); }
+            get { return values[0xA]; }
         }
 
         public byte WindowX
         {
-            get { return Read8(0xFF4B); }
+            get { return values[0xB]; }
         }
 
         public bool LCDBackgroundEnabled { get { return (LCDControl & (byte)LCDFlags.Background) != 0; } }
