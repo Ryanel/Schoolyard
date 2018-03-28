@@ -28,3 +28,8 @@ Schoolyard is currently under development. It can only run test carts, but fails
   * 09-op r,r: Fails
   * 10-bit ops: Passes
   * 11-op a,(hl): Fails and Crashes
+
+## Todo's
+
+* Central Interrupt Dispatch Mechanicsm
+* Comb-through the Opcode table and package any repetitive code
