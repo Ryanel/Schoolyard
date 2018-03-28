@@ -57,6 +57,12 @@ namespace Schoolyard.LCD
             set { values[4] = value; }
         }
 
+        public byte ScanLineCompare
+        {
+            get { return values[0x5]; }
+            set { values[5] = value; }
+        }
+
         public byte[] bgPalette = new byte[4] { 0x0, 0x1, 0x2, 0x3 };
         public byte[] objPalette1 = new byte[4] { 0xFF, 0x1, 0x2, 0x3 };
         public byte[] objPalette2 = new byte[4] { 0XFF, 0x1, 0x2, 0x3 };
@@ -71,6 +77,12 @@ namespace Schoolyard.LCD
                 bgPalette[1] = PaletteToColor(value, 1);
                 bgPalette[0] = PaletteToColor(value, 0);
             }
+        }
+
+        public byte LCDCStatusInterrupt
+        {
+            get { return values[0x4]; }
+            set { values[4] = value; }
         }
 
         public byte WindowY

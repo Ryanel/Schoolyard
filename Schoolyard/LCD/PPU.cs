@@ -77,6 +77,7 @@ namespace Schoolyard.LCD
                     ModeVRAMRead();
                     break;
             }
+            regs.StatusMode = (byte)currentMode;
         }
 
         private void ModeHBlank()
@@ -86,16 +87,7 @@ namespace Schoolyard.LCD
                 modeClock -= clocksHBlank;
                 if (regs.ScanLine >= height)
                 {
-                    byte flags = mem.Read8(0xFF0F);
-                    byte enable = mem.Read8(0xFFFF);
-
-                    if ((enable & 0x1) != 0)
-                    {
-                        flags |= 0x1;
-                        mem.Write8(0xFF0F, flags);
-                    }
-
-                    currentMode = PPUMode.V_BLANK;
+                    ToVBlank();
                     OnRenderComplete();
                     return;
                 }
@@ -138,6 +130,20 @@ namespace Schoolyard.LCD
                 DrawScanline(); 
                 regs.ScanLine++;
             }
+        }
+
+        private void ToVBlank()
+        {
+            byte flags = mem.Read8(0xFF0F);
+            byte enable = mem.Read8(0xFFFF);
+
+            if ((enable & (byte)CPU.Registers.InterruptFlags.VBlank) != 0)
+            {
+                flags |= (byte)CPU.Registers.InterruptFlags.VBlank;
+                mem.Write8(0xFF0F, flags);
+            }
+
+            currentMode = PPUMode.V_BLANK;
         }
 
         private void ToHBlank()
