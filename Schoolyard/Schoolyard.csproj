@@ -47,6 +47,7 @@
     <Compile Include="CPU\LR35902_Opcodes.cs" />
     <Compile Include="CPU\LR35902_Registers.cs" />
     <Compile Include="CPU\Registers.cs" />
+    <Compile Include="CPU\Timer.cs" />
     <Compile Include="Gameboy.cs" />
     <Compile Include="Hardware.cs" />
     <Compile Include="LCD\PPUCharacterRAM.cs" />

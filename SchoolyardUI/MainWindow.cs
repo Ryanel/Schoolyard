@@ -13,7 +13,10 @@ namespace SchoolyardUI
 {
     public partial class MainWindow : Form
     {
+        Debugger debugger;
         Gameboy gameboy;
+        Bitmap displayImage;
+        bool hasRenderedFrame = false;
 
         public MainWindow()
         {
@@ -26,35 +29,33 @@ namespace SchoolyardUI
             gameboy.Reset();
 
             gameboy.ppu.OnDisplayRendered += Ppu_RenderedFrame;
-            gameboy.ppu.OnTileUpdate += Ppu_UpdatedTile;
 
             gameboy.loader.LoadROM("drmario.gb");
             gameboy.Start();
+        }
+
+        private void MainTimer(object sender, EventArgs e)
+        {
+            ulong cycles = 0;
+
+            while(!hasRenderedFrame && gameboy.cpu.StateRunning)
+            {
+                cycles += gameboy.Step();
+            }
+            hasRenderedFrame = false;
         }
 
         private void Ppu_RenderedFrame(object sender, EventArgs e)
         {
             UpdateDisplay();
         }
-
-        private void Ppu_UpdatedTile(object sender, EventArgs e)
-        {
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            for (int i = 0; i < 1000; i++)
-            {
-                gameboy.Step();
-            }
-        }
-
-        Bitmap displayImage;
-
+        
+        // Display
         void UpdateDisplay()
         {
             Schoolyard.LCD.PPU ppu = gameboy.ppu;
-            if(displayImage == null)
+            hasRenderedFrame = true;
+            if (displayImage == null)
             {
                 displayImage = new Bitmap(160, 144);
             }
@@ -88,10 +89,11 @@ namespace SchoolyardUI
                     }
                 }
             }
+            
             displayPicture.Image = displayImage;
         }
 
-        private void displayPicture_Paint(object sender, PaintEventArgs e)
+        private void DisplayPicture_Paint(object sender, PaintEventArgs e)
         {
             if (displayImage == null) { return; }
             e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
@@ -106,7 +108,7 @@ namespace SchoolyardUI
                 GraphicsUnit.Pixel);
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFile();
         }
@@ -120,6 +122,15 @@ namespace SchoolyardUI
                 gameboy.loader.LoadROM(openFileDialog.FileName);
                 gameboy.Start();
             }
+        }
+
+        private void debuggerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(debugger == null)
+            {
+                debugger = new Debugger(gameboy);
+            }
+            debugger.Show();
         }
     }
 }

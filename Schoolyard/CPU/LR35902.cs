@@ -14,6 +14,7 @@ namespace Schoolyard.CPU
         public bool StateRunning;
         public ulong cycles;
         public bool haltBug = false;
+
         // Statistics
         public ulong instructionsExecuted = 0;
 
@@ -104,9 +105,21 @@ namespace Schoolyard.CPU
                     //mem.Write8(0xFF85, 0); // Set to 0 on vblank
                     regs.interruptsMasterEnable = false;
                     unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.VBlank; }
-                    Console.WriteLine("[CPU] Interrupt STATUS @ " + ByteUtilities.HexString(PC, true));
+                    //Console.WriteLine("[CPU] Interrupt STATUS @ " + ByteUtilities.HexString(PC, true));
                     Push16(PC);
                     PC = 0x0048;
+                    cycles += 12;
+                    return true;
+                }
+                if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // LCD Status interrupt
+                {
+                    StateHalt = false;
+                    //mem.Write8(0xFF85, 0); // Set to 0 on vblank
+                    regs.interruptsMasterEnable = false;
+                    unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.Timer; }
+                    //Console.WriteLine("[CPU] Interrupt TIMER @ " + ByteUtilities.HexString(PC, true));
+                    Push16(PC);
+                    PC = 0x0050;
                     cycles += 12;
                     return true;
                 }

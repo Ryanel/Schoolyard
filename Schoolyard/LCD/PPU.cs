@@ -19,7 +19,7 @@ namespace Schoolyard.LCD
         // Holds full image
         public byte[,] framebuffer = new byte[width, height];
         public byte[,,] tiles = new byte[384, 8, 8]; // Decoded tile data, in tileID, y, x format.
-        public int framesRendered = 0;
+        public ulong framesRendered = 0;
 
         public PPUMode currentMode = PPUMode.H_BLANK;
         public ulong modeClock = 0;

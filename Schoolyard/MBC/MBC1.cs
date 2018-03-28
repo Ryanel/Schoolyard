@@ -47,7 +47,10 @@ namespace Schoolyard.MBC
         }
 
         // This is ROM, so don't handle writes at all.
-        public override void Write16(ushort address, ushort val) { }
+        public override void Write16(ushort address, ushort val) {
+            Write8(address, (byte)(val & 0x00FF));
+            Write8((ushort)(address + 1), (byte)((val & 0xFF00) >> 8));
+        }
         public override void Write8(ushort address, byte val)
         {
             if (address < 0x1FFF) // Ram enable

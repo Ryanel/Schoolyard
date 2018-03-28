@@ -15,13 +15,14 @@ namespace Schoolyard
         public LR35902 cpu;
         public PPU ppu;
         public MemoryController memory;
-
+        public Timer timer;
         public Gameboy()
         {
             loader = new ROMLoader(this);
             memory = new MemoryController();
             cpu = new LR35902(this);
             ppu = new PPU(memory);
+            timer = new Timer(memory);
         }
 
         public void SetupMemoryMap()
@@ -42,6 +43,7 @@ namespace Schoolyard
             memory.Map(wram);      // 0xC000 - 0xDFFF Work RAM
             memory.Map(oam);       // 0xFE00 - 0xFE9F OAM
             memory.Map(r);         // 0xFEA0 - 0xFEFF Unmapped
+            memory.Map(timer);
             memory.Map(ppu.regs);  // 0xFF40 - 0xFF47 PPU Registers
             memory.Map(hwio);      // 0xFF00 - 0xFF80 Unmapped HWIO
             memory.Map(hiram);     // 0xFF80 - 0xFFFE Zero Page
@@ -62,10 +64,12 @@ namespace Schoolyard
             cpu.StateRunning = true;
         }
 
-        public void Step()
+        public ulong Step()
         {
             ulong cyclesDelta = cpu.Step();
             ppu.Step(cyclesDelta);
+            timer.Step(cyclesDelta);
+            return cyclesDelta;
         }
     }
 }
