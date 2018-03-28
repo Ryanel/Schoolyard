@@ -20,6 +20,15 @@ namespace Schoolyard.LCD
             DisplayOn = 128,
         }
 
+        public enum LCDStatusFlags : byte
+        {
+            Coincidence            = (1 << 2),
+            HBlankInterrupt        = (1 << 3),
+            VBlankInterrupt        = (1 << 4),
+            OamInterrupt           = (1 << 5),
+            CoincidenceInterrupt   = (1 << 6),
+        }
+
         public byte LCDControl
         {
             get { return values[0x0]; }
@@ -49,6 +58,8 @@ namespace Schoolyard.LCD
         }
 
         public byte[] bgPalette = new byte[4] { 0x0, 0x1, 0x2, 0x3 };
+        public byte[] objPalette1 = new byte[4] { 0xFF, 0x1, 0x2, 0x3 };
+        public byte[] objPalette2 = new byte[4] { 0XFF, 0x1, 0x2, 0x3 };
 
         public byte BackgroundPalette
         {

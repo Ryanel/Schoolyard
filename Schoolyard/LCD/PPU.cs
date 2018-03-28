@@ -84,8 +84,7 @@ namespace Schoolyard.LCD
             if (modeClock >= clocksHBlank)
             {
                 modeClock -= clocksHBlank;
-                regs.ScanLine++;
-                if (regs.ScanLine >= height - 1)
+                if (regs.ScanLine >= height)
                 {
                     byte flags = mem.Read8(0xFF0F);
                     byte enable = mem.Read8(0xFFFF);
@@ -100,8 +99,10 @@ namespace Schoolyard.LCD
                     OnRenderComplete();
                     return;
                 }
-
-                currentMode = PPUMode.OAM_READ;
+                else
+                {
+                    currentMode = PPUMode.OAM_READ;
+                }
             }
         }
 
@@ -114,7 +115,7 @@ namespace Schoolyard.LCD
                 if (regs.ScanLine >= 153)
                 {
                     regs.ScanLine = 0;
-                    currentMode = PPUMode.H_BLANK;
+                    ToHBlank();
                 }
             }
         }
@@ -133,9 +134,21 @@ namespace Schoolyard.LCD
             if (modeClock >= clocksVRAMRead)
             {
                 modeClock -= clocksVRAMRead;
-                currentMode = PPUMode.H_BLANK;
-                DrawScanline();
+                ToHBlank();
+                DrawScanline(); 
+                regs.ScanLine++;
             }
+        }
+
+        private void ToHBlank()
+        {
+            if ((regs.Status & (byte)PPURegisters.LCDStatusFlags.HBlankInterrupt) != 0)
+            {
+                byte flags = mem.Read8(0xFF0F);
+                flags |= (byte)CPU.Registers.InterruptFlags.LCDStat;
+                mem.Write8(0xFF0F, flags);
+            }
+            currentMode = PPUMode.H_BLANK;
         }
 
         public void DecodeTile(ushort address, byte value)
@@ -145,13 +158,21 @@ namespace Schoolyard.LCD
             ushort tile = (ushort)((address >> 4) & 511);
             ushort y = (ushort)((address >> 1) & 7);
 
-            
             for (byte x = 0; x < 8; x++)
             {
-                byte bitIndex = (byte)(1 << (7 - x));
+                byte bitIndex = (byte)(1 << ( 7 - x));
                 byte a = mem.Read8((ushort)(address + 0x8000));
                 byte b = mem.Read8((ushort)(address + 0x8001));
-                tiles[tile, y, x] = (byte)((((byte)(a & bitIndex) > 0) ? 1 : 0 + (((byte)(b & bitIndex) > 0) ? 2 : 0)));
+                int lo = ((a & bitIndex) != 0) ? 0x1 : 0x0;
+                int hi = ((b & bitIndex) != 0) ? 0x2 : 0x0; 
+                tiles[tile, y, x] = (byte)(lo | hi);
+                /*
+                byte a = mem.Read8((ushort)(address + 0x8000));
+                byte b = mem.Read8((ushort)(address + 0x8001));
+                byte shift = (byte)((7 - x) & 7);
+                byte pixel = (byte)(((b >> shift) & 1) << 1 | ((a >> shift) & 1));
+                tiles[tile, y, x] = pixel;
+                */
             }
 
             if (OnTileUpdate != null)
@@ -192,7 +213,7 @@ namespace Schoolyard.LCD
             if (regs.LCDWindowOn && windowY > scrollY) // Determine if window is on
             {
                 window = true;
-                tileMapAddress = !regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
+                tileMapAddress = regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
                 yPosition = (scrollY - windowY) % 256;
                 windowX = regs.WindowX;
             }
@@ -200,7 +221,7 @@ namespace Schoolyard.LCD
             int tileRow = (yPosition / 8) * 32;
 
             for (int x = 0; x < 160; x++) {
-                int xPosition = (x + screenX) % 256; ;
+                int xPosition = (x + screenX) % 256;
 
                 if (window) {
                     xPosition = x - windowX;
@@ -214,7 +235,7 @@ namespace Schoolyard.LCD
                 int tileIndex;
                 if (signedTileIndex)
                 {
-                    tileIndex = bgram.Read8(tileAddress); // Read directly from cram for increased performance
+                    tileIndex = (sbyte)bgram.Read8(tileAddress); // Read directly from cram for increased performance
                     if (tileIndex < 128)
                     {
                         tileIndex += 256;
@@ -222,17 +243,105 @@ namespace Schoolyard.LCD
                 }
                 else
                 {
-                    tileIndex = (sbyte)bgram.Read8(tileAddress);
+                    tileIndex = bgram.Read8(tileAddress);
                 }
+
+                // Decode here
+
+                
 
                 // Write pixel to framebuffer
                 byte pixel = tiles[tileIndex, yPosition % 8, xPosition % 8];
+
                 framebuffer[x, scanLine] = regs.bgPalette[pixel];
             }
         }
 
         private void DrawSpriteScanLine()
         {
+            int currentLine = regs.ScanLine;
+            byte transparent = 0xFF;
+            if (currentLine >= 144)
+            {
+                return;
+            }
+
+            byte[] scanline = new byte[160];
+
+            // Clear scanline
+            for (int i = 0; i < 160; i++)
+            {
+                scanline[i] = transparent; // Transparent
+            }
+
+            int numSprites = 0;
+
+            for (int i = 0; i < 40 && numSprites < 10; i++)
+            {
+                // Read this sprite's properties
+                ushort objectAddress = (ushort)((i * 4) + 0xFE00);
+                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 16);
+                byte xPosition = (byte)(mem.Read8((ushort)(objectAddress + 1)) - 8);
+                byte tileIndex = (byte)(mem.Read8((ushort)(objectAddress + 2)));
+                byte flags = (byte)(mem.Read8((ushort)(objectAddress + 3)));
+                byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
+
+                var top = yPosition;
+                var bottom = top + height;
+
+                if (top <= currentLine && bottom > currentLine)
+                {
+                    bool verticalMirror = false; // Bit.BitValue(flags, 6) == 1;
+                    bool horizontalMirror = false; //Bit.BitValue(flags, 5) == 1;
+                    bool aboveBackground = true; //Bit.BitValue(flags, 7) == 0;
+
+                    int vLine = currentLine - top;
+                    if (verticalMirror)
+                    {
+                        vLine -= height;
+                        vLine *= -1;
+                    }
+
+                    //byte[] objectPallete = Bit.BitValue(flags, 4) == 0 ? regs._objpallete0 : regs._objpallete1;
+                    byte[] objectPallete = regs.objPalette1; // TODO: Switch palettes
+
+                    for (int x = 7; x >= 0; x++)
+                    {
+                        if (horizontalMirror)
+                        {
+                            x -= 8;
+                            x *= -1;
+                        }
+                        
+                        int currentBit = 7 - x;
+                        byte color = tiles[tileIndex, (vLine % 8), x % 8];
+
+                        // Calculate sprite priority
+                        if (color == transparent)
+                        {
+                            continue;
+                        }
+
+                        if (xPosition + x < 160 && xPosition + x > 0)
+                        {
+                            scanline[xPosition + x] = objectPallete[color];
+                        }
+                    }
+
+                    numSprites++;
+                }
+            }
+            if(numSprites > 0)
+            {
+                Console.WriteLine("Outputting " + numSprites + " sprites");
+            }
+            
+            // Apply scanline
+            for (int i = 0; i < 160; i++)
+            {
+                if (scanline[i] == transparent) { continue; }
+                framebuffer[i, currentLine] = scanline[i];
+            }
             // TODO: Sprite support
         }
 

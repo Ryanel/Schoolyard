@@ -83,7 +83,7 @@ namespace Schoolyard.CPU
                     StateHalt = false;
                     cycles += 0;
                 }
-                if ((fired & 0x01) != 0) // VBlank
+                if ((fired & (byte)Registers.InterruptFlags.VBlank) != 0) // VBlank
                 {
                     StateHalt = false;
                     mem.Write8(0xFF85, 0); // Set to 0 on vblank
@@ -96,9 +96,22 @@ namespace Schoolyard.CPU
                     Push16(PC);
                     PC = 0x0040;
                     cycles += 12;
-
+                    return true;
+                }
+                if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
+                {
+                    StateHalt = false;
+                    //mem.Write8(0xFF85, 0); // Set to 0 on vblank
+                    regs.interruptsMasterEnable = false;
+                    unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.VBlank; }
+                    Console.WriteLine("[CPU] Interrupt STATUS @ " + ByteUtilities.HexString(PC, true));
+                    Push16(PC);
+                    PC = 0x0048;
+                    cycles += 12;
+                    return true;
                 }
             }
+
             return false;
         }
 
