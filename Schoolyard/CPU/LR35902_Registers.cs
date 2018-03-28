@@ -54,7 +54,6 @@ namespace Schoolyard.CPU
             Console.WriteLine(" T: " + regs.T);
             Console.WriteLine("Instructions Run: " + instructionsExecuted);
             //Console.WriteLine("IE: " + ByteUtilities.HexString(mem.Read8(0xFFFF)));
-
             Console.WriteLine("#------------------------------------------");
         }
     }

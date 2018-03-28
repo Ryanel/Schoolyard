@@ -36,6 +36,7 @@ namespace Schoolyard.CPU
         {
             regs.Reset();
             cycles = 0;
+            instructionsExecuted = 0;
             StateHalt = false;
             StateRunning = true;
             haltBug = false;
@@ -82,7 +83,8 @@ namespace Schoolyard.CPU
                 if (haltBug)
                 {
                     StateHalt = false;
-                    cycles += 0;
+                    cycles += 4;
+                    return true;
                 }
                 if ((fired & (byte)Registers.InterruptFlags.VBlank) != 0) // VBlank
                 {
@@ -93,7 +95,7 @@ namespace Schoolyard.CPU
                     // Call interrupt
                     regs.interruptsMasterEnable = false;
                     unchecked { flags &= (byte)~(byte)0x1;}
-
+                    mem.Write8(0xFF0F, flags);
                     Push16(PC);
                     PC = 0x0040;
                     cycles += 12;
@@ -102,24 +104,22 @@ namespace Schoolyard.CPU
                 if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
                 {
                     StateHalt = false;
-                    //mem.Write8(0xFF85, 0); // Set to 0 on vblank
                     regs.interruptsMasterEnable = false;
                     unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.VBlank; }
-                    //Console.WriteLine("[CPU] Interrupt STATUS @ " + ByteUtilities.HexString(PC, true));
-                    Push16(PC);
-                    PC = 0x0048;
+                    mem.Write8(0xFF0F, flags);
+                    Push16(regs.pc);
+                    regs.pc = 0x0048;
                     cycles += 12;
                     return true;
                 }
                 if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // LCD Status interrupt
                 {
                     StateHalt = false;
-                    //mem.Write8(0xFF85, 0); // Set to 0 on vblank
                     regs.interruptsMasterEnable = false;
                     unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.Timer; }
-                    //Console.WriteLine("[CPU] Interrupt TIMER @ " + ByteUtilities.HexString(PC, true));
-                    Push16(PC);
-                    PC = 0x0050;
+                    mem.Write8(0xFF0F, flags);
+                    Push16(regs.pc);
+                    regs.pc = 0x0050;
                     cycles += 12;
                     return true;
                 }
@@ -137,8 +137,6 @@ namespace Schoolyard.CPU
             regs.pc += (ushort)i.code.Length;
             int cycles =  i.code.Operation(this, i);
 
-            //Console.WriteLine(String.Format("${0:X4} : {1}",regs.pc, i.ToString()));
-
             regs.T += cycles;
             instructionsExecuted++;
             return cycles;
@@ -147,7 +145,11 @@ namespace Schoolyard.CPU
         public void Halt()
         {
             StateHalt = true;
-            // TODO: Set haltbug flag here
+
+            if (regs.interruptsMasterEnable != true)
+            {
+                haltBug = true;
+            }
         }
 
         public void Stop()
