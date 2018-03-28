@@ -79,6 +79,32 @@ namespace Schoolyard.LCD
             }
         }
 
+        public byte Obj0Palette
+        {
+            get { return Read8(0xFF48); }
+            set
+            {
+                values[8] = value;
+                objPalette1[3] = PaletteToColor(value, 3);
+                objPalette1[2] = PaletteToColor(value, 2);
+                objPalette1[1] = PaletteToColor(value, 1);
+                objPalette1[0] = 0xFF;
+            }
+        }
+
+        public byte Obj1Palette
+        {
+            get { return Read8(0xFF49); }
+            set
+            {
+                values[9] = value;
+                objPalette2[3] = PaletteToColor(value, 3);
+                objPalette2[2] = PaletteToColor(value, 2);
+                objPalette2[1] = PaletteToColor(value, 1);
+                objPalette2[0] = 0xFF;
+            }
+        }
+
         public byte LCDCStatusInterrupt
         {
             get { return values[0x4]; }

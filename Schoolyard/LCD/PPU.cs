@@ -291,22 +291,23 @@ namespace Schoolyard.LCD
             {
                 // Read this sprite's properties
                 ushort objectAddress = (ushort)((i * 4) + 0xFE00);
-                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 0);
+                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 16);
                 byte xPosition = (byte)(mem.Read8((ushort)(objectAddress + 1)) - 8);
                 byte tileIndex = (byte)(mem.Read8((ushort)(objectAddress + 2)));
                 byte flags = (byte)(mem.Read8((ushort)(objectAddress + 3)));
                 byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
 
-                int top = yPosition - 16;
+                int top = yPosition;
                 int bottom = top + height;
 
                 if (top <= currentLine && bottom > currentLine)
                 {
                     numSprites++;
 
-                    bool verticalMirror = false; 
-                    bool horizontalMirror = false;
-                    bool aboveBackground = true;
+                    bool palette2         = (flags & 0b00010000) != 0;
+                    bool horizontalMirror = (flags & 0b00100000) != 0;
+                    bool verticalMirror   = (flags & 0b01000000) != 0;
+                    bool aboveBackground  = (flags & 0b10000000) != 0;
 
                     int vLine = currentLine - top;
                     if (verticalMirror)
@@ -314,19 +315,33 @@ namespace Schoolyard.LCD
                         vLine -= height;
                         vLine *= -1;
                     }
-                    
-                    byte[] objectPallete = regs.objPalette1; // TODO: Switch palettes
+
+                    byte[] objectPallete;
+                    if (palette2)
+                    {
+                        objectPallete = regs.objPalette2; 
+                    }
+                    else
+                    {
+                        objectPallete = regs.objPalette1;
+                    }
 
                     for (int x = 7; x >= 0; x--)
                     {
-                        if (false) // horizontalMirror
+                        if (horizontalMirror) // horizontalMirror
                         {
                             x -= 8;
                             x *= -1;
                         }
-                        
+
+                        int tileX = x;
+                        if(horizontalMirror)
+                        {
+                            tileX = 7 - x;
+                        }
+
                         int currentBit = 7 - x;
-                        byte color = tiles[tileIndex, (vLine % 8), x % 8];
+                        byte color = tiles[tileIndex, (vLine % 8), tileX % 8];
 
                         // Calculate sprite priority
                         if (color == transparent)
@@ -346,6 +361,7 @@ namespace Schoolyard.LCD
             {
                 //Console.WriteLine("Outputting " + numSprites + " sprites");
             }
+
             // Apply scanline
             for (int i = 0; i < 160; i++)
             {

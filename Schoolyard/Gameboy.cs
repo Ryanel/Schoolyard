@@ -30,6 +30,7 @@ namespace Schoolyard
         public void SetupMemoryMap()
         {
             RAM wram   = new RAM("wram", 0xC000, 0x2000);
+            EchoRAM ech = new EchoRAM("echo", 0xE000, 0x1E00, 0xC000, memory);
             RAM oam    = new RAM("oam", 0xFE00, 0xA0);
             Reserved r = new Reserved("resv", 0xFEA0, 0x60);
             RAM hwio   = new RAM("hwio - unmapped", 0xFF00, 0x80);
@@ -44,6 +45,7 @@ namespace Schoolyard
             memory.Map(ppu.cram);  // 0x8000 - 0x97FF CRAM
             memory.Map(ppu.bgram); // 0x9800 - 0x9FFF BG 1 and 2
             memory.Map(wram);      // 0xC000 - 0xDFFF Work RAM
+            memory.Map(ech);       // 0xE000 - 0xFDFF Echo of Work RAM
             memory.Map(oam);       // 0xFE00 - 0xFE9F OAM
             memory.Map(r);         // 0xFEA0 - 0xFEFF Unmapped
             memory.Map(timer);
@@ -72,6 +74,7 @@ namespace Schoolyard
             ulong cyclesDelta = cpu.Step();
             ppu.Step(cyclesDelta);
             timer.Step(cyclesDelta);
+            dma.Step(cyclesDelta);
             return cyclesDelta;
         }
     }

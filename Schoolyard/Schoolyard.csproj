@@ -55,6 +55,7 @@
     <Compile Include="LCD\PPUCharacterRAM.cs" />
     <Compile Include="MBC\MBC1.cs" />
     <Compile Include="MBC\MBCNone.cs" />
+    <Compile Include="Memory\EchoRAM.cs" />
     <Compile Include="Memory\MemoryController.cs" />
     <Compile Include="Memory\MemoryDevice.cs" />
     <Compile Include="Memory\Reserved.cs" />

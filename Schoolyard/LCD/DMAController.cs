@@ -13,6 +13,7 @@ namespace Schoolyard.LCD
         public const ulong oamDMACyclesTotal = 671;
         public ulong cyclesTaken = 0;
         public bool isTransfering = false;
+        public ulong bytesCopied = 0;
 
         public DMAController(Gameboy gameboy)
         {
@@ -35,18 +36,43 @@ namespace Schoolyard.LCD
 
         private void PerformOamDmaTransfer(byte dma)
         {
-            Console.WriteLine("Attempt to start DMA");
-            byte[] oamData = new byte[0xA0];
-            for (int i = 0; i < 0xA0; i++)
+            if(isTransfering)
             {
-                ushort address = (ushort)(dma * 0x100);
-                gameboy.memory.Write8((ushort)(0xFE00+i), gameboy.memory.Read8(address));
+                return;
             }
+            sourceHi = dma;
+            bytesCopied = 0;
+            cyclesTaken = 0;
+            isTransfering = true;
         }
 
         public void StopVRAMDMA()
         {
 
+        }
+
+        public void Step(ulong cycles)
+        {
+            if(!isTransfering)
+            {
+                return;
+            }
+            cyclesTaken += cycles;
+
+            
+
+            ushort source = (ushort)(sourceHi * 0x100);
+            ulong bytesToHaveCopied = (cyclesTaken / 4) - 1;
+            for (; bytesCopied < bytesToHaveCopied; bytesCopied++)
+            {
+                byte data = gameboy.memory.Read8((ushort)(source + bytesCopied));
+                gameboy.memory.Write8((ushort)(0xFE00 + bytesCopied), data);
+            }
+
+            if(cyclesTaken >= oamDMACyclesTotal)
+            {
+                isTransfering = false;
+            }
         }
     }
 }

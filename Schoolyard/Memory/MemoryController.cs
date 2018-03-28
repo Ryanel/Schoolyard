@@ -9,7 +9,7 @@ namespace Schoolyard.Memory
         private List<MemoryDevice> devices = new List<MemoryDevice>();
         public string serialOut = ""; // Hack to allow easy serial output
         private MemoryDevice rom;
-
+        private const bool debugLog = false;
         public MemoryController(Gameboy gameboy)
         {
             this.gameboy = gameboy;
@@ -60,6 +60,10 @@ namespace Schoolyard.Memory
 
             MemoryDevice dev = GetMappedDevice(address);
             if (dev != null) {
+                if (debugLog)
+                {
+                    Console.WriteLine(String.Format("Read from {2} at ${0:X4} -> {1:X2}", address, dev.Read8(address), dev.name));
+                }
                 return dev.Read8(address);
             }
 
@@ -68,6 +72,7 @@ namespace Schoolyard.Memory
         
         public void Write8(ushort address, byte val)
         {
+            
             // Catch serial out
             if (address == 0xff01)
             {
@@ -91,6 +96,11 @@ namespace Schoolyard.Memory
 
             MemoryDevice dev = GetMappedDevice(address);
             if (dev != null) {
+                if(debugLog)
+                {
+                    Console.WriteLine(String.Format("Write to {2} at ${0:X4} <- {1:X2}", address, val, dev.name));
+                }
+                
                 dev.Write8(address, val);
                 return;
             }
