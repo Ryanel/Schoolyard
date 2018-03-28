@@ -10,7 +10,7 @@ Schoolyard is currently under development. It can only run test carts, but fails
 ## Games
 
 * Tetris: No output
-* Dr.Mario: Broken title screen
+* Dr.Mario: No sprites, able to get to demo, which plays wrong
 
 ### Tests
 
@@ -26,5 +26,5 @@ Schoolyard is currently under development. It can only run test carts, but fails
   * 07-jr,jp,call,ret,rst: Passes
   * 08-misc instrs: Passes
   * 09-op r,r: Fails
-  * 10-bit ops: Crashes
+  * 10-bit ops: Passes
   * 11-op a,(hl): Fails and Crashes

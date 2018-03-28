@@ -40,7 +40,7 @@ namespace Schoolyard.LCD
         // Events
         public event EventHandler OnTileUpdate;
         public event EventHandler OnDisplayRendered;
-
+        public event EventHandler OnHBlank;
         public PPU(MemoryController mem)
         {
             regs = new PPURegisters("ppuregs", 0xFF40, 0xB);
@@ -155,6 +155,11 @@ namespace Schoolyard.LCD
                 mem.Write8(0xFF0F, flags);
             }
             currentMode = PPUMode.H_BLANK;
+
+            if(OnHBlank != null)
+            {
+                OnHBlank.Invoke(this, null);
+            }
         }
 
         public void DecodeTile(ushort address, byte value)
@@ -197,7 +202,7 @@ namespace Schoolyard.LCD
                 DrawBackgroundScanLine();
             }
 
-            if (regs.LCDSpritesEnabled) {
+            if (regs.LCDSpritesEnabled || true) {
                 DrawSpriteScanLine();
             }
         }
@@ -266,13 +271,15 @@ namespace Schoolyard.LCD
         private void DrawSpriteScanLine()
         {
             int currentLine = regs.ScanLine;
-            byte transparent = 0xFF;
+            
             if (currentLine >= 144)
             {
                 return;
             }
 
+            const byte transparent = 0xFF;
             byte[] scanline = new byte[160];
+            int numSprites = 0;
 
             // Clear scanline
             for (int i = 0; i < 160; i++)
@@ -280,26 +287,26 @@ namespace Schoolyard.LCD
                 scanline[i] = transparent; // Transparent
             }
 
-            int numSprites = 0;
-
             for (int i = 0; i < 40 && numSprites < 10; i++)
             {
                 // Read this sprite's properties
                 ushort objectAddress = (ushort)((i * 4) + 0xFE00);
-                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 16);
+                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 0);
                 byte xPosition = (byte)(mem.Read8((ushort)(objectAddress + 1)) - 8);
                 byte tileIndex = (byte)(mem.Read8((ushort)(objectAddress + 2)));
                 byte flags = (byte)(mem.Read8((ushort)(objectAddress + 3)));
                 byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
 
-                var top = yPosition;
-                var bottom = top + height;
+                int top = yPosition - 16;
+                int bottom = top + height;
 
                 if (top <= currentLine && bottom > currentLine)
                 {
-                    bool verticalMirror = false; // Bit.BitValue(flags, 6) == 1;
-                    bool horizontalMirror = false; //Bit.BitValue(flags, 5) == 1;
-                    bool aboveBackground = true; //Bit.BitValue(flags, 7) == 0;
+                    numSprites++;
+
+                    bool verticalMirror = false; 
+                    bool horizontalMirror = false;
+                    bool aboveBackground = true;
 
                     int vLine = currentLine - top;
                     if (verticalMirror)
@@ -307,13 +314,12 @@ namespace Schoolyard.LCD
                         vLine -= height;
                         vLine *= -1;
                     }
-
-                    //byte[] objectPallete = Bit.BitValue(flags, 4) == 0 ? regs._objpallete0 : regs._objpallete1;
+                    
                     byte[] objectPallete = regs.objPalette1; // TODO: Switch palettes
 
-                    for (int x = 7; x >= 0; x++)
+                    for (int x = 7; x >= 0; x--)
                     {
-                        if (horizontalMirror)
+                        if (false) // horizontalMirror
                         {
                             x -= 8;
                             x *= -1;
@@ -334,21 +340,18 @@ namespace Schoolyard.LCD
                         }
                     }
 
-                    numSprites++;
                 }
             }
             if(numSprites > 0)
             {
-                Console.WriteLine("Outputting " + numSprites + " sprites");
+                //Console.WriteLine("Outputting " + numSprites + " sprites");
             }
-            
             // Apply scanline
             for (int i = 0; i < 160; i++)
             {
                 if (scanline[i] == transparent) { continue; }
                 framebuffer[i, currentLine] = scanline[i];
             }
-            // TODO: Sprite support
         }
 
         private void OnRenderComplete()

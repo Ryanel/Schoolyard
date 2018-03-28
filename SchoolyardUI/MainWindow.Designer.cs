@@ -54,7 +54,7 @@
             // globalTimer
             // 
             this.globalTimer.Enabled = true;
-            this.globalTimer.Interval = 2;
+            this.globalTimer.Interval = 16;
             this.globalTimer.Tick += new System.EventHandler(this.MainTimer);
             // 
             // openFileDialog

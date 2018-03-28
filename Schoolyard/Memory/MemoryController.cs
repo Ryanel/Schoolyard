@@ -5,19 +5,29 @@ namespace Schoolyard.Memory
 {
     public class MemoryController
     {
+        public Gameboy gameboy;
         private List<MemoryDevice> devices = new List<MemoryDevice>();
+        public string serialOut = ""; // Hack to allow easy serial output
+        private MemoryDevice rom;
 
-        public void Map(MemoryDevice device) { devices.Add(device); }
+        public MemoryController(Gameboy gameboy)
+        {
+            this.gameboy = gameboy;
+        }
+
+        public void Map(MemoryDevice device) {
+            devices.Add(device);
+        }
         public void Map(MemoryDevice device, bool rom) {
             devices.Add(device);
             this.rom = device;
         }
-        public void UnMap(MemoryDevice device) { devices.Remove(device); }
 
-        public string serialOut = ""; // Hack to allow easy serial output
+        public void UnMap(MemoryDevice device) {
+            devices.Remove(device);
+        }
 
-        private MemoryDevice rom;
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryDevice GetMappedDevice(ushort address)
         {
@@ -71,6 +81,12 @@ namespace Schoolyard.Memory
                 {
                     serialOut += (Char)val;
                 }
+            }
+
+            if (address == 0xFF46)
+            {
+                gameboy.dma.Write8(0xFF46, val);
+                return;
             }
 
             MemoryDevice dev = GetMappedDevice(address);

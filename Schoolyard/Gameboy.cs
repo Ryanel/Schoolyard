@@ -16,13 +16,15 @@ namespace Schoolyard
         public PPU ppu;
         public MemoryController memory;
         public Timer timer;
+        public DMAController dma;
         public Gameboy()
         {
             loader = new ROMLoader(this);
-            memory = new MemoryController();
+            memory = new MemoryController(this);
             cpu = new LR35902(this);
             ppu = new PPU(memory);
             timer = new Timer(memory);
+            dma = new DMAController(this);
         }
 
         public void SetupMemoryMap()
@@ -38,6 +40,7 @@ namespace Schoolyard
             // 1. Order determines priorities
             // 2. Multiple devices can be mapped to the same address
             //                        0x0000 - 0xA000 ROM
+            memory.Map(dma);
             memory.Map(ppu.cram);  // 0x8000 - 0x97FF CRAM
             memory.Map(ppu.bgram); // 0x9800 - 0x9FFF BG 1 and 2
             memory.Map(wram);      // 0xC000 - 0xDFFF Work RAM

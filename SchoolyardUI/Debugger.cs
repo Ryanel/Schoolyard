@@ -12,7 +12,11 @@ namespace SchoolyardUI
 {
     public partial class Debugger : Form
     {
-        Gameboy target;
+        private Gameboy target;
+
+        private ulong lastInstructions = 0;
+        private ulong lastFrame = 0;
+
         public Debugger(Gameboy target)
         {
             InitializeComponent();
@@ -22,19 +26,20 @@ namespace SchoolyardUI
         private void Debugger_Load(object sender, EventArgs e)
         {
             Size toResize = Size;
-            toResize.Width = 256;
+            toResize.Width = 173;
             Size = toResize;
         }
 
-        
         private void DebugTimer_Tick(object sender, EventArgs e)
         {
-            
+            // CPU
+            labelAF.Text = String.Format("BC: {0:X4}", target.cpu.AF);
+            labelBC.Text = String.Format("BC: {0:X4}", target.cpu.BC);
+            labelDE.Text = String.Format("BC: {0:X4}", target.cpu.DE);
+            labelHL.Text = String.Format("BC: {0:X4}", target.cpu.HL);
+            labelSP.Text = String.Format("SP: {0:X4}", target.cpu.SP);
+            labelPC.Text = String.Format("PC: {0:X4}", target.cpu.PC);
         }
-
-        private ulong lastInstructions = 0;
-        private ulong lastFrame = 0;
-
 
         private void PerSecondTimer_Tick(object sender, EventArgs e)
         {
@@ -46,6 +51,12 @@ namespace SchoolyardUI
 
             ipsLabel.Text = "IPS: " + instructionsDelta;
             fpsLabel.Text = "FPS: " + frameDelta;
+        }
+
+        private void Debugger_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
         }
     }
 }

@@ -86,12 +86,16 @@ namespace Schoolyard.CPU
 
         public void Reset()
         {
-            PC = 0x100;
-            AF = 0x01B0;
-            BC = 0x0013;
-            DE = 0x00D8;
-            HL = 0x014D;
+            a = 0x01;
+            Flags = 0;
+            b = 0xFF;
+            c = 0x13;
+            d = 0x00;
+            e = 0xC1;
+            h = 0x84;
+            l = 0x03;
             SP = 0xFFFE;
+            PC = 0x100;
             interruptsMasterEnable = false;
         }
     }

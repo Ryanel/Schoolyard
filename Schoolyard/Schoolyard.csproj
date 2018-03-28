@@ -50,6 +50,8 @@
     <Compile Include="CPU\Timer.cs" />
     <Compile Include="Gameboy.cs" />
     <Compile Include="Hardware.cs" />
+    <Compile Include="Input\Keypad.cs" />
+    <Compile Include="LCD\DMAController.cs" />
     <Compile Include="LCD\PPUCharacterRAM.cs" />
     <Compile Include="MBC\MBC1.cs" />
     <Compile Include="MBC\MBCNone.cs" />
