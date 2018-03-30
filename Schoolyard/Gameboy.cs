@@ -22,7 +22,7 @@ namespace Schoolyard
             loader = new ROMLoader(this);
             memory = new MemoryController(this);
             cpu = new LR35902(this);
-            ppu = new PPU(memory);
+            ppu = new PPU(this);
             timer = new Timer(memory);
             dma = new DMAController(this);
         }

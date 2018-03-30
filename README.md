@@ -31,5 +31,5 @@ Schoolyard is currently under development. It can only run test carts, but fails
 
 ## Todo's
 
-* Central Interrupt Dispatch Mechanicsm
+* Pass all tests
 * Comb-through the Opcode table and package any repetitive code

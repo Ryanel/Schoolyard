@@ -88,44 +88,49 @@ namespace Schoolyard.CPU
                 }
                 if ((fired & (byte)Registers.InterruptFlags.VBlank) != 0) // VBlank
                 {
-                    StateHalt = false;
                     mem.Write8(0xFF85, 0); // Set to 0 on vblank
-                    //Console.WriteLine("[CPU] Interrupt VBLANK @ " + ByteUtilities.HexString(PC, true));
-                    // Clear flag
-                    // Call interrupt
-                    regs.interruptsMasterEnable = false;
-                    unchecked { flags &= (byte)~(byte)0x1;}
-                    mem.Write8(0xFF0F, flags);
-                    Push16(PC);
-                    PC = 0x0040;
-                    cycles += 12;
-                    return true;
+                    DoInterrupt(Registers.InterruptFlags.VBlank, 0x40);
                 }
                 if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
                 {
-                    StateHalt = false;
-                    regs.interruptsMasterEnable = false;
-                    unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.VBlank; }
-                    mem.Write8(0xFF0F, flags);
-                    Push16(regs.pc);
-                    regs.pc = 0x0048;
-                    cycles += 12;
-                    return true;
+                    DoInterrupt(Registers.InterruptFlags.Timer, 0x48);
                 }
-                if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // LCD Status interrupt
+                if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // Timer
                 {
-                    StateHalt = false;
-                    regs.interruptsMasterEnable = false;
-                    unchecked { flags &= (byte)~(byte)Registers.InterruptFlags.Timer; }
-                    mem.Write8(0xFF0F, flags);
-                    Push16(regs.pc);
-                    regs.pc = 0x0050;
-                    cycles += 12;
-                    return true;
+                    DoInterrupt(Registers.InterruptFlags.Timer, 0x50);
                 }
             }
 
             return false;
+        }
+
+        private void DoInterrupt(Registers.InterruptFlags interrupt, ushort address)
+        {
+            // Set flag
+            byte flags = mem.Read8(0xFF0F);
+            regs.interruptsMasterEnable = false;
+            unchecked {
+                flags &= (byte)~(byte)interrupt;
+            }
+            mem.Write8(0xFF0F, flags);
+
+            // Jump to address
+            Push16(PC);
+            regs.pc = address;
+            cycles += 12;
+            StateHalt = false;
+        }
+
+        public void IssueInterrupt(Registers.InterruptFlags interrupt)
+        {
+            byte flags = mem.Read8(0xFF0F);
+            byte enable = mem.Read8(0xFFFF);
+            byte intbyte = (byte)interrupt;
+            if ((enable & (byte)intbyte) != 0)
+            {
+                flags |= (byte)intbyte;
+                mem.Write8(0xFF0F, flags);
+            }
         }
 
         /// <summary>

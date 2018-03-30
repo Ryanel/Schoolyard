@@ -9,7 +9,7 @@ namespace Schoolyard.Memory
         private List<MemoryDevice> devices = new List<MemoryDevice>();
         public string serialOut = ""; // Hack to allow easy serial output
         private MemoryDevice rom;
-        private const bool debugLog = false;
+        public bool debugLog = false;
         public MemoryController(Gameboy gameboy)
         {
             this.gameboy = gameboy;

@@ -27,8 +27,8 @@ namespace Schoolyard.LCD
         public PPURegisters regs;
         public PPUCharacterRAM cram;
         public RAM bgram;
-        public MemoryController mem;
-
+        private MemoryController mem;
+        private Gameboy gameboy;
         // Constants
         public const int width = 160;
         public const int height = 144;
@@ -41,12 +41,13 @@ namespace Schoolyard.LCD
         public event EventHandler OnTileUpdate;
         public event EventHandler OnDisplayRendered;
         public event EventHandler OnHBlank;
-        public PPU(MemoryController mem)
+        public PPU(Gameboy gb)
         {
             regs = new PPURegisters("ppuregs", 0xFF40, 0xB);
             cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
             bgram = new RAM("bg", 0x9800, 0x800);
-            this.mem = mem;
+            this.gameboy = gb;
+            this.mem = gameboy.memory;
         }
 
         public void Reset() {
@@ -134,15 +135,7 @@ namespace Schoolyard.LCD
 
         private void ToVBlank()
         {
-            byte flags = mem.Read8(0xFF0F);
-            byte enable = mem.Read8(0xFFFF);
-
-            if ((enable & (byte)CPU.Registers.InterruptFlags.VBlank) != 0)
-            {
-                flags |= (byte)CPU.Registers.InterruptFlags.VBlank;
-                mem.Write8(0xFF0F, flags);
-            }
-
+            gameboy.cpu.IssueInterrupt(CPU.Registers.InterruptFlags.VBlank);
             currentMode = PPUMode.V_BLANK;
         }
 
@@ -150,9 +143,7 @@ namespace Schoolyard.LCD
         {
             if ((regs.Status & (byte)PPURegisters.LCDStatusFlags.HBlankInterrupt) != 0)
             {
-                byte flags = mem.Read8(0xFF0F);
-                flags |= (byte)CPU.Registers.InterruptFlags.LCDStat;
-                mem.Write8(0xFF0F, flags);
+                gameboy.cpu.IssueInterrupt(CPU.Registers.InterruptFlags.LCDStat);
             }
             currentMode = PPUMode.H_BLANK;
 
@@ -257,13 +248,8 @@ namespace Schoolyard.LCD
                     tileIndex = bgram.Read8(tileAddress);
                 }
 
-                // Decode here
-
-                
-
                 // Write pixel to framebuffer
                 byte pixel = tiles[tileIndex, yPosition % 8, xPosition % 8];
-
                 framebuffer[x, scanLine] = regs.bgPalette[pixel];
             }
         }
