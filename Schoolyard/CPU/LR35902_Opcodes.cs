@@ -251,7 +251,7 @@ namespace Schoolyard.CPU
             new Opcode(0xDB, "unimplemented"       , 1, OpUnimplemented),
             new Opcode(0xDC, "call c {0:X4}"       , 3, (c,i) => {return c.OpCallConditional(i.Operand16, c.FlagCarry == true); }),
             new Opcode(0xDD, "unimplemented"       , 1, OpUnimplemented),
-            new Opcode(0xDE, "sbc a, {0:X2}"       , 2, (c,i) => {c.A = c.alu.Adc(c.A, i.Operand8, RegFlags.Z | RegFlags.H | RegFlags.C, RegFlags.N); return 8;}),
+            new Opcode(0xDE, "sbc a, {0:X2}"       , 2, (c,i) => {c.A = c.alu.Sbc(c.A, i.Operand8, RegFlags.Z | RegFlags.H | RegFlags.C, RegFlags.N); return 8;}),
             new Opcode(0xDF, "rst $18"             , 1, (c,i) => {c.Call(0x18); return 16; }),
             // 0xE0
             new Opcode(0xE0, "ldh $FF00+{0:X2}, a" , 2, (c,i) => {c.mem.Write8((ushort)(0xFF00 + i.Operand8), c.A); return 12; }),

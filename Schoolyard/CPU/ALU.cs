@@ -25,8 +25,6 @@ namespace Schoolyard.CPU
             {
                 cpu.ClearFlags(resetFlags); // Clear flags we're told to clear
                 cpu.SetFlags(setFlags); // Set flags we're told to set
-                // Re-clear anything we're updating.
-                // We do this after so we don't mess with our state
                 cpu.ClearFlags(flagsToUpdate);
 
                 int operation_result = operation(a, b);
@@ -163,9 +161,9 @@ namespace Schoolyard.CPU
             public byte Adc(byte a, byte b, RegFlags updateFlags = RegFlags.None,
                 RegFlags setFlags = RegFlags.None, RegFlags resetFlags = RegFlags.None)
             {
+                int carrybefore = cpu.FlagCarry ? 1 : 0;
                 return Calculate(a, b, (x, y) => {
-                    int carry = cpu.FlagCarry ? 1 : 0;
-                    return x + y + carry;
+                    return x + y + carrybefore;
                 }, updateFlags, setFlags, resetFlags);
             }
 
@@ -184,9 +182,9 @@ namespace Schoolyard.CPU
             public byte Sbc(byte a, byte b, RegFlags updateFlags = RegFlags.None,
                 RegFlags setFlags = RegFlags.None, RegFlags resetFlags = RegFlags.None)
             {
+                int carrybefore = cpu.FlagCarry ? 1 : 0;
                 return Calculate(a, b, (x, y) => {
-                    int carry = cpu.FlagCarry ? 1 : 0;
-                    return x - (y + carry);
+                    return x - (y + carrybefore);
                 }, updateFlags, setFlags, resetFlags);
             }
 
@@ -381,39 +379,52 @@ namespace Schoolyard.CPU
                 cpu.Flags = (byte)(z | RegFlags.H | c);
             }
 
-            internal void Daa()
+            public void Daa()
             {
                 var flags = RegFlags.None;
-
-                int value = cpu.A;
-
-                int correction = cpu.FlagCarry ? 0x60 : 0x00;
-
-                if (cpu.FlagHalfCarry)
-                    correction |= 0x6;
-
-                if (!cpu.FlagNegative)
+                int a = cpu.A;
+                if(!cpu.FlagNegative)
                 {
-                    if ((value & 0xF) > 0x9)
-                        correction |= 6;
-                    if (value > 0x99)
-                        correction |= 0x60;
-                    value += correction;
+                    if (cpu.FlagHalfCarry || (a & 0xF) > 9)
+                    {
+                        a += 0x06;
+                    }
+                    if (cpu.FlagCarry || a > 0x9F)
+                    {
+                        a += 0x60;
+                    }
                 }
                 else
                 {
-                    value -= correction;
+                    if (cpu.FlagHalfCarry)
+                    {
+                        a = (a - 6) & 0xFF;
+                    }
+                    if (cpu.FlagCarry)
+                    {
+                        a -= 0x60;
+                    }
                 }
 
-                if (((correction << 2) & 0x100) != 0)
+                cpu.ClearFlags(RegFlags.H | RegFlags.Z);
+
+                if ((a & 0x100) == 0x100)
+                {
                     flags |= RegFlags.C;
-                if (cpu.A == 0)
+                }
+
+                a &= 0xFF;
+
+                // Set zero flag
+                if (a == 0)
+                {
                     flags |= RegFlags.Z;
+                }
 
-                cpu.A = (byte)(value & 0xFF);
-
-                cpu.ClearFlags(RegFlags.Z | RegFlags.H | RegFlags.C);
                 cpu.SetFlags(flags);
+
+                cpu.A = (byte)a;
+
             }
             public byte Sr(byte value, bool resetMsb)
             {
