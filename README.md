@@ -17,10 +17,10 @@ Schoolyard is currently under development. It can only run test carts, but fails
 * OPUS5: Display
 * Blarggs
   * cpu_instrs: Halts
-  * 01-special: Fails
+  * 01-special: Passes
   * 02-interrupts: Fails
   * 03-op sp,hl: Passes
-  * 04-op r,imm: Fails
+  * 04-op r,imm: Passes
   * 05-op rp: Fails
   * 06-ld r,r: Passes
   * 07-jr,jp,call,ret,rst: Passes

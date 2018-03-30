@@ -119,8 +119,12 @@ namespace SchoolyardUI
             if (res == DialogResult.OK)
             {
                 gameboy.Reset();
-                gameboy.loader.LoadROM(openFileDialog.FileName);
-                gameboy.Start();
+                bool loaded = gameboy.loader.LoadROM(openFileDialog.FileName);
+
+                if(loaded)
+                {
+                    gameboy.Start();
+                }
             }
         }
 

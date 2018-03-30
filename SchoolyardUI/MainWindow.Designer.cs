@@ -43,10 +43,11 @@
             // 
             // displayPicture
             // 
+            this.displayPicture.Dock = System.Windows.Forms.DockStyle.Fill;
             this.displayPicture.Location = new System.Drawing.Point(0, 24);
             this.displayPicture.Margin = new System.Windows.Forms.Padding(0);
             this.displayPicture.Name = "displayPicture";
-            this.displayPicture.Size = new System.Drawing.Size(480, 432);
+            this.displayPicture.Size = new System.Drawing.Size(479, 431);
             this.displayPicture.TabIndex = 0;
             this.displayPicture.TabStop = false;
             this.displayPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.DisplayPicture_Paint);
