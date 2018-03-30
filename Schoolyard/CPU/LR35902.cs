@@ -91,11 +91,11 @@ namespace Schoolyard.CPU
                     mem.Write8(0xFF85, 0); // Set to 0 on vblank
                     DoInterrupt(Registers.InterruptFlags.VBlank, 0x40);
                 }
-                if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
+                else if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
                 {
-                    DoInterrupt(Registers.InterruptFlags.Timer, 0x48);
+                    DoInterrupt(Registers.InterruptFlags.LCDStat, 0x48);
                 }
-                if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // Timer
+                else if ((fired & (byte)Registers.InterruptFlags.Timer) != 0) // Timer
                 {
                     DoInterrupt(Registers.InterruptFlags.Timer, 0x50);
                 }

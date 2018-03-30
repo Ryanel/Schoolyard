@@ -23,7 +23,7 @@ namespace Schoolyard
             memory = new MemoryController(this);
             cpu = new LR35902(this);
             ppu = new PPU(this);
-            timer = new Timer(memory);
+            timer = new Timer(this);
             dma = new DMAController(this);
         }
 

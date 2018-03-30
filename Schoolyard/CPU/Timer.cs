@@ -8,11 +8,10 @@ namespace Schoolyard.CPU
 {
     public class Timer : Memory.RAM
     {
-        private Memory.MemoryController mem;
         public const int BaseFreqency = 16384;
-
         private ushort internalCounter = 0;
         private byte timer = 0;
+        private Gameboy gameboy;
 
         // Timer Modulo
         public byte DIV
@@ -31,7 +30,7 @@ namespace Schoolyard.CPU
             set {
                 if(value > 0xFF)
                 {
-                    // Raise interrupt
+                    gameboy.cpu.IssueInterrupt(Registers.InterruptFlags.Timer);
                     timer = TMA; // Reset
                 }
                 else
@@ -97,9 +96,9 @@ namespace Schoolyard.CPU
             }
         }
 
-        public Timer(Memory.MemoryController m) : base("timer", 0xFF04, 4)
+        public Timer(Gameboy gameboy) : base("timer", 0xFF04, 4)
         {
-            mem = m;
+            this.gameboy = gameboy;
         }
 
         public override void Write8(ushort address, byte val)

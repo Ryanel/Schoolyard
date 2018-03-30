@@ -18,7 +18,7 @@ namespace Schoolyard.LCD
 
         // Holds full image
         public byte[,] framebuffer = new byte[width, height];
-        public byte[,,] tiles = new byte[384, 8, 8]; // Decoded tile data, in tileID, y, x format.
+        public byte[,,] tiles = new byte[512, 8, 8]; // Decoded tile data, in tileID, y, x format.
         public ulong framesRendered = 0;
 
         public PPUMode currentMode = PPUMode.H_BLANK;
@@ -43,7 +43,7 @@ namespace Schoolyard.LCD
         public event EventHandler OnHBlank;
         public PPU(Gameboy gb)
         {
-            regs = new PPURegisters("ppuregs", 0xFF40, 0xB);
+            regs = new PPURegisters("ppuregs", 0xFF40, 0xC);
             cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
             bgram = new RAM("bg", 0x9800, 0x800);
             this.gameboy = gb;
@@ -209,24 +209,24 @@ namespace Schoolyard.LCD
             int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
             int tileMapAddress = !regs.LCDTileMap ? 0x9800 : 0x9C00;
             int screenX = regs.ScrollX & 7;
-            int yPosition = (scanLine + scrollY) % 256;
+            byte yPosition = (byte)(scanLine + scrollY);
             bool window = false;
 
             if (regs.LCDWindowOn && windowY > scrollY) // Determine if window is on
             {
                 window = true;
                 tileMapAddress = regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
-                yPosition = (scrollY - windowY) % 256;
+                yPosition = (byte)(scrollY - windowY);
                 windowX = regs.WindowX;
             }
 
             int tileRow = (yPosition / 8) * 32;
 
-            for (int x = 0; x < 160; x++) {
-                int xPosition = (x + screenX) % 256;
+            for (byte x = 0; x < 160; x++) {
+                byte xPosition = (byte)(x + screenX);
 
                 if (window) {
-                    xPosition = x - windowX;
+                    xPosition = (byte)(x - windowX);
                 }
 
                 // Get tile address
@@ -279,8 +279,8 @@ namespace Schoolyard.LCD
                 ushort objectAddress = (ushort)((i * 4) + 0xFE00);
                 byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 16);
                 byte xPosition = (byte)(mem.Read8((ushort)(objectAddress + 1)) - 8);
-                byte tileIndex = (byte)(mem.Read8((ushort)(objectAddress + 2)));
-                byte flags = (byte)(mem.Read8((ushort)(objectAddress + 3)));
+                byte tileIndex = mem.Read8((ushort)(objectAddress + 2));
+                byte flags = mem.Read8((ushort)(objectAddress + 3));
                 byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
 
                 int top = yPosition;
@@ -290,6 +290,7 @@ namespace Schoolyard.LCD
                 {
                     numSprites++;
 
+                    // Object properties
                     bool palette2         = (flags & 0b00010000) != 0;
                     bool horizontalMirror = (flags & 0b00100000) != 0;
                     bool verticalMirror   = (flags & 0b01000000) != 0;
@@ -314,19 +315,9 @@ namespace Schoolyard.LCD
 
                     for (int x = 7; x >= 0; x--)
                     {
-                        if (horizontalMirror) // horizontalMirror
-                        {
-                            x -= 8;
-                            x *= -1;
-                        }
-
                         int tileX = x;
-                        if(horizontalMirror)
-                        {
-                            tileX = 7 - x;
-                        }
+                        if(horizontalMirror) { tileX = 7 - x; }
 
-                        int currentBit = 7 - x;
                         byte color = tiles[tileIndex, (vLine % 8), tileX % 8];
 
                         // Calculate sprite priority
@@ -337,7 +328,19 @@ namespace Schoolyard.LCD
 
                         if (xPosition + x < 160 && xPosition + x > 0)
                         {
-                            scanline[xPosition + x] = objectPallete[color];
+                            int pos = xPosition + x;
+                            if(scanline[pos] != transparent)
+                            {
+                                if(aboveBackground)
+                                {
+                                    scanline[pos] = objectPallete[color];
+                                }
+                            }
+                            else
+                            {
+                                scanline[pos] = objectPallete[color];
+                            }
+                            
                         }
                     }
 
