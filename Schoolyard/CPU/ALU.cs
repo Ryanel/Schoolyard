@@ -34,20 +34,17 @@ namespace Schoolyard.CPU
                 RegFlags flags = RegFlags.None;
 
                 // Set carry flag
-                if ((carryBits & 0x100) == 0x100)
-                {
+                if ((carryBits & 0x100) == 0x100) {
                     flags |= RegFlags.C;
                 }
 
                 // Set half carry
-                if ((carryBits & 0x10) == 0x10)
-                {
+                if ((carryBits & 0x10) == 0x10) {
                     flags |= RegFlags.H;
                 }
 
                 // Set zero flag
-                if (result == 0)
-                {
+                if (result == 0) {
                     flags |= RegFlags.Z;
                 }
 
@@ -73,20 +70,17 @@ namespace Schoolyard.CPU
                 RegFlags flags = RegFlags.None;
 
                 // Set carry flag
-                if (((a ^ b ^ operation_result) & 0x10000) == 0x10000)
-                {
+                if (((a ^ b ^ operation_result) & 0x10000) == 0x10000) {
                     flags |= RegFlags.C;
                 }
 
                 // Set half carry
-                if (((a ^ b ^ result) & 0x1000) == 0x1000)
-                {
+                if (((a ^ b ^ result) & 0x1000) == 0x1000) {
                     flags |= RegFlags.H;
                 }
 
                 // Set zero flag
-                if (result == 0)
-                {
+                if (result == 0) {
                     flags |= RegFlags.Z;
                 }
 
@@ -112,20 +106,17 @@ namespace Schoolyard.CPU
                 RegFlags flags = RegFlags.None;
 
                 // Set carry flag
-                if (((a ^ b ^ operation_result) & 0x100) == 0x100)
-                {
+                if (((a ^ b ^ operation_result) & 0x100) == 0x100) {
                     flags |= RegFlags.C;
                 }
 
                 // Set half carry
-                if (((a ^ b ^ result) & 0x10) == 0x10)
-                {
+                if (((a ^ b ^ result) & 0x10) == 0x10) {
                     flags |= RegFlags.H;
                 }
 
                 // Set zero flag
-                if (result == 0)
-                {
+                if (result == 0) {
                     flags |= RegFlags.Z;
                 }
 

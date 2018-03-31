@@ -27,7 +27,6 @@ namespace Schoolyard.Memory
             devices.Remove(device);
         }
 
-        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryDevice GetMappedDevice(ushort address)
         {

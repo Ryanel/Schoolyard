@@ -83,7 +83,6 @@ namespace SchoolyardUI
             {
                 tileImage = new Bitmap(128, 128);
             }
-            
             int currentTile = 0;
 
             Color white = Color.White; // 0x0
