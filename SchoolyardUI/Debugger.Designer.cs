@@ -31,6 +31,10 @@
             this.components = new System.ComponentModel.Container();
             this.dissassemblyGroupBox = new System.Windows.Forms.GroupBox();
             this.cpuGroupBox = new System.Windows.Forms.GroupBox();
+            this.cFlag = new System.Windows.Forms.CheckBox();
+            this.hFlag = new System.Windows.Forms.CheckBox();
+            this.nFlag = new System.Windows.Forms.CheckBox();
+            this.zFlag = new System.Windows.Forms.CheckBox();
             this.labelPC = new System.Windows.Forms.Label();
             this.labelDE = new System.Windows.Forms.Label();
             this.labelSP = new System.Windows.Forms.Label();
@@ -51,10 +55,7 @@
             this.fpsLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.DebugTimer = new System.Windows.Forms.Timer(this.components);
             this.PerSecondTimer = new System.Windows.Forms.Timer(this.components);
-            this.zFlag = new System.Windows.Forms.CheckBox();
-            this.nFlag = new System.Windows.Forms.CheckBox();
-            this.hFlag = new System.Windows.Forms.CheckBox();
-            this.cFlag = new System.Windows.Forms.CheckBox();
+            this.updateTiles = new System.Windows.Forms.CheckBox();
             this.cpuGroupBox.SuspendLayout();
             this.ppuGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ppuTiles)).BeginInit();
@@ -89,6 +90,46 @@
             this.cpuGroupBox.TabIndex = 1;
             this.cpuGroupBox.TabStop = false;
             this.cpuGroupBox.Text = "CPU";
+            // 
+            // cFlag
+            // 
+            this.cFlag.AutoSize = true;
+            this.cFlag.Location = new System.Drawing.Point(95, 61);
+            this.cFlag.Name = "cFlag";
+            this.cFlag.Size = new System.Drawing.Size(33, 17);
+            this.cFlag.TabIndex = 4;
+            this.cFlag.Text = "C";
+            this.cFlag.UseVisualStyleBackColor = true;
+            // 
+            // hFlag
+            // 
+            this.hFlag.AutoSize = true;
+            this.hFlag.Location = new System.Drawing.Point(95, 46);
+            this.hFlag.Name = "hFlag";
+            this.hFlag.Size = new System.Drawing.Size(34, 17);
+            this.hFlag.TabIndex = 4;
+            this.hFlag.Text = "H";
+            this.hFlag.UseVisualStyleBackColor = true;
+            // 
+            // nFlag
+            // 
+            this.nFlag.AutoSize = true;
+            this.nFlag.Location = new System.Drawing.Point(95, 31);
+            this.nFlag.Name = "nFlag";
+            this.nFlag.Size = new System.Drawing.Size(34, 17);
+            this.nFlag.TabIndex = 4;
+            this.nFlag.Text = "N";
+            this.nFlag.UseVisualStyleBackColor = true;
+            // 
+            // zFlag
+            // 
+            this.zFlag.AutoSize = true;
+            this.zFlag.Location = new System.Drawing.Point(95, 16);
+            this.zFlag.Name = "zFlag";
+            this.zFlag.Size = new System.Drawing.Size(33, 17);
+            this.zFlag.TabIndex = 4;
+            this.zFlag.Text = "Z";
+            this.zFlag.UseVisualStyleBackColor = true;
             // 
             // labelPC
             // 
@@ -152,6 +193,7 @@
             // 
             // ppuGroupBox
             // 
+            this.ppuGroupBox.Controls.Add(this.updateTiles);
             this.ppuGroupBox.Controls.Add(this.ppuTiles);
             this.ppuGroupBox.Location = new System.Drawing.Point(12, 145);
             this.ppuGroupBox.Name = "ppuGroupBox";
@@ -261,45 +303,18 @@
             this.PerSecondTimer.Interval = 1000;
             this.PerSecondTimer.Tick += new System.EventHandler(this.PerSecondTimer_Tick);
             // 
-            // zFlag
+            // updateTiles
             // 
-            this.zFlag.AutoSize = true;
-            this.zFlag.Location = new System.Drawing.Point(95, 16);
-            this.zFlag.Name = "zFlag";
-            this.zFlag.Size = new System.Drawing.Size(33, 17);
-            this.zFlag.TabIndex = 4;
-            this.zFlag.Text = "Z";
-            this.zFlag.UseVisualStyleBackColor = true;
-            // 
-            // nFlag
-            // 
-            this.nFlag.AutoSize = true;
-            this.nFlag.Location = new System.Drawing.Point(95, 31);
-            this.nFlag.Name = "nFlag";
-            this.nFlag.Size = new System.Drawing.Size(34, 17);
-            this.nFlag.TabIndex = 4;
-            this.nFlag.Text = "N";
-            this.nFlag.UseVisualStyleBackColor = true;
-            // 
-            // hFlag
-            // 
-            this.hFlag.AutoSize = true;
-            this.hFlag.Location = new System.Drawing.Point(95, 46);
-            this.hFlag.Name = "hFlag";
-            this.hFlag.Size = new System.Drawing.Size(34, 17);
-            this.hFlag.TabIndex = 4;
-            this.hFlag.Text = "H";
-            this.hFlag.UseVisualStyleBackColor = true;
-            // 
-            // cFlag
-            // 
-            this.cFlag.AutoSize = true;
-            this.cFlag.Location = new System.Drawing.Point(95, 61);
-            this.cFlag.Name = "cFlag";
-            this.cFlag.Size = new System.Drawing.Size(33, 17);
-            this.cFlag.TabIndex = 4;
-            this.cFlag.Text = "C";
-            this.cFlag.UseVisualStyleBackColor = true;
+            this.updateTiles.AutoSize = true;
+            this.updateTiles.Checked = true;
+            this.updateTiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.updateTiles.Location = new System.Drawing.Point(2, 80);
+            this.updateTiles.Name = "updateTiles";
+            this.updateTiles.Size = new System.Drawing.Size(122, 17);
+            this.updateTiles.TabIndex = 1;
+            this.updateTiles.Text = "Update Tile Preview";
+            this.updateTiles.UseVisualStyleBackColor = true;
+            this.updateTiles.CheckedChanged += new System.EventHandler(this.updateTiles_CheckedChanged);
             // 
             // Debugger
             // 
@@ -320,6 +335,7 @@
             this.cpuGroupBox.ResumeLayout(false);
             this.cpuGroupBox.PerformLayout();
             this.ppuGroupBox.ResumeLayout(false);
+            this.ppuGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ppuTiles)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -358,5 +374,6 @@
         private System.Windows.Forms.CheckBox hFlag;
         private System.Windows.Forms.CheckBox nFlag;
         private System.Windows.Forms.CheckBox zFlag;
+        private System.Windows.Forms.CheckBox updateTiles;
     }
 }

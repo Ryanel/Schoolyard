@@ -83,6 +83,12 @@ namespace SchoolyardUI
             {
                 tileImage = new Bitmap(128, 128);
             }
+
+            if(!updateTiles.Checked)
+            {
+                return;
+            }
+
             int currentTile = 0;
 
             Color white = Color.White; // 0x0
@@ -144,6 +150,14 @@ namespace SchoolyardUI
                 tileImage.Width,       // width of source rectangle
                 tileImage.Height,      // height of source rectangle
                 GraphicsUnit.Pixel);
+        }
+
+        private void updateTiles_CheckedChanged(object sender, EventArgs e)
+        {
+            if(updateTiles.Checked)
+            {
+                tileImageDirty = true;
+            }
         }
     }
 }
