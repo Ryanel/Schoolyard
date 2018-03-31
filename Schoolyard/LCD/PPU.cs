@@ -218,7 +218,7 @@ namespace Schoolyard.LCD
             bool signedTileIndex = !regs.LCDAddressMode;
             int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
             int tileMapAddress = !regs.LCDTileMap ? 0x9800 : 0x9C00;
-            int screenX = regs.ScrollX & 7;
+            int screenX = regs.ScrollX % 255;
             byte yPosition = (byte)(scanLine + scrollY);
             bool window = false;
 
@@ -314,12 +314,12 @@ namespace Schoolyard.LCD
                         int tileX = x;
                         if(horizontalMirror) { tileX = 7 - x; }
 
-                        byte color = tiles[tileIndex, (vLine % 8), tileX % 8];
+                        byte color = tiles[tileIndex + (vLine < 8 ? 0:1), (vLine % 8), tileX % 8];
                         if (color == transparent) { continue; }
-
+                        int pos = xPosition + x;
                         // Output sprite
-                        if (xPosition + x < width && xPosition + x > 0) {
-                            int pos = xPosition + x;                       
+                        if (pos < width && pos >= 0) {
+                  
                             if(scanline[pos] != transparent) { // Do we have to check for priority?
                                 if(aboveBackground) { // If this sprite can be displayed above...
                                     scanline[pos] = objectPallete[color];
