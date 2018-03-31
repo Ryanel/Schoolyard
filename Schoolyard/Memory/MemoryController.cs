@@ -87,6 +87,11 @@ namespace Schoolyard.Memory
                 }
             }
 
+            if(address == 0xFF80) // Hack: Block first write of HiRAM for tetris. No idea why. Causes everyting to crash.
+            {
+                //return;
+            }
+
             if (address == 0xFF46)
             {
                 gameboy.dma.Write8(0xFF46, val);

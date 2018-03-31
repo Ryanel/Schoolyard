@@ -115,8 +115,7 @@ namespace Schoolyard.CPU
             mem.Write8(0xFF0F, flags);
 
             // Jump to address
-            Push16(PC);
-            regs.pc = address;
+            Call(address);
             cycles += 12;
             StateHalt = false;
         }
@@ -126,9 +125,9 @@ namespace Schoolyard.CPU
             byte flags = regs.interruptFlag;
             byte enable = regs.interruptEnableFlag;
             byte intbyte = (byte)interrupt;
-            if ((enable & (byte)intbyte) != 0)
+            if ((enable & intbyte) != 0)
             {
-                flags |= (byte)intbyte;
+                flags |= intbyte;
                 mem.Write8(0xFF0F, flags);
             }
         }
