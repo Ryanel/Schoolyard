@@ -22,6 +22,8 @@ namespace Schoolyard.CPU
         public ushort pc;
         public long t;
         public bool interruptsMasterEnable;
+        public byte interruptEnableFlag;
+        public byte interruptFlag;
 
         [Flags]
         public enum RegFlags : byte

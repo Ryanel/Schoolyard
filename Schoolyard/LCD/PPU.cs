@@ -27,6 +27,7 @@ namespace Schoolyard.LCD
         public PPURegisters regs;
         public PPUCharacterRAM cram;
         public RAM bgram;
+        public RAM oam;
         private MemoryController mem;
         private Gameboy gameboy;
         // Constants
@@ -36,16 +37,21 @@ namespace Schoolyard.LCD
         public const ulong clocksVBlank = 456;
         public const ulong clocksOAMRead = 80;
         public const ulong clocksVRAMRead = 172;
-
+        public const byte transparent = 0xFF;
         // Events
         public event EventHandler OnTileUpdate;
         public event EventHandler OnDisplayRendered;
         public event EventHandler OnHBlank;
+
+        // Cached variables
+        private int currentLine;
+
         public PPU(Gameboy gb)
         {
             regs = new PPURegisters("ppuregs", 0xFF40, 0xC);
             cram = new PPUCharacterRAM("cram", 0x8000, 0x1800, this);
             bgram = new RAM("bg", 0x9800, 0x800);
+            oam = new RAM("oam", 0xFE00, 0xA0);
             this.gameboy = gb;
             this.mem = gameboy.memory;
         }
@@ -57,6 +63,8 @@ namespace Schoolyard.LCD
             framebuffer = new byte[width, height]; // Clear framebuffer
             tiles = new byte[384, 8, 8];
             framesRendered = 0;
+
+            currentLine = 0;
         }
 
         public void Step(ulong cycles)
@@ -184,7 +192,8 @@ namespace Schoolyard.LCD
         }
 
         private void DrawScanline() {
-            if(regs.ScanLine >= height) { // Should never hit this, but here to be safe
+            currentLine = regs.ScanLine;
+            if (currentLine >= height) { // Should never hit this, but here to be safe
                 return; 
             }
 
@@ -200,7 +209,7 @@ namespace Schoolyard.LCD
 
         private void DrawBackgroundScanLine() {
             // Cache properties we'll need
-            byte scanLine = regs.ScanLine;
+            byte scanLine = (byte)currentLine;
             byte scrollY = regs.ScrollY;
             byte windowY = regs.WindowY;
             byte windowX = 0x00; // Load this only if we use the window
@@ -256,38 +265,27 @@ namespace Schoolyard.LCD
 
         private void DrawSpriteScanLine()
         {
-            int currentLine = regs.ScanLine;
-            
-            if (currentLine >= 144)
-            {
-                return;
-            }
-
-            const byte transparent = 0xFF;
             byte[] scanline = new byte[160];
             int numSprites = 0;
 
             // Clear scanline
-            for (int i = 0; i < 160; i++)
-            {
+            for (int i = 0; i < 160; i++) {
                 scanline[i] = transparent; // Transparent
             }
 
-            for (int i = 0; i < 40 && numSprites < 10; i++)
-            {
+            for (int i = 0; i < 40 && numSprites < 10; i++) {
                 // Read this sprite's properties
                 ushort objectAddress = (ushort)((i * 4) + 0xFE00);
-                byte yPosition = (byte)(mem.Read8((ushort)(objectAddress + 0)) - 16);
-                byte xPosition = (byte)(mem.Read8((ushort)(objectAddress + 1)) - 8);
-                byte tileIndex = mem.Read8((ushort)(objectAddress + 2));
-                byte flags = mem.Read8((ushort)(objectAddress + 3));
+                byte yPosition = (byte)(oam.Read8((ushort)(objectAddress + 0)) - 16);
+                byte xPosition = (byte)(oam.Read8((ushort)(objectAddress + 1)) - 8);
+                byte tileIndex = oam.Read8((ushort)(objectAddress + 2));
+                byte flags = oam.Read8((ushort)(objectAddress + 3));
                 byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
 
                 int top = yPosition;
                 int bottom = top + height;
 
-                if (top <= currentLine && bottom > currentLine)
-                {
+                if (top <= currentLine && bottom > currentLine) {
                     numSprites++;
 
                     // Object properties
@@ -297,19 +295,16 @@ namespace Schoolyard.LCD
                     bool aboveBackground  = (flags & 0b10000000) != 0;
 
                     int vLine = currentLine - top;
-                    if (verticalMirror)
-                    {
+                    if (verticalMirror) {
                         vLine -= height;
                         vLine *= -1;
                     }
 
                     byte[] objectPallete;
-                    if (palette2)
-                    {
+                    if (palette2) {
                         objectPallete = regs.objPalette2; 
                     }
-                    else
-                    {
+                    else {
                         objectPallete = regs.objPalette1;
                     }
 
@@ -319,41 +314,26 @@ namespace Schoolyard.LCD
                         if(horizontalMirror) { tileX = 7 - x; }
 
                         byte color = tiles[tileIndex, (vLine % 8), tileX % 8];
+                        if (color == transparent) { continue; }
 
-                        // Calculate sprite priority
-                        if (color == transparent)
-                        {
-                            continue;
-                        }
-
-                        if (xPosition + x < 160 && xPosition + x > 0)
-                        {
-                            int pos = xPosition + x;
-                            if(scanline[pos] != transparent)
-                            {
-                                if(aboveBackground)
-                                {
+                        // Output sprite
+                        if (xPosition + x < 160 && xPosition + x > 0) {
+                            int pos = xPosition + x;                       
+                            if(scanline[pos] != transparent) { // Do we have to check for priority?
+                                if(aboveBackground) { // If this sprite can be displayed above...
                                     scanline[pos] = objectPallete[color];
                                 }
                             }
-                            else
-                            {
+                            else {
                                 scanline[pos] = objectPallete[color];
-                            }
-                            
+                            } 
                         }
                     }
-
                 }
-            }
-            if(numSprites > 0)
-            {
-                //Console.WriteLine("Outputting " + numSprites + " sprites");
             }
 
             // Apply scanline
-            for (int i = 0; i < 160; i++)
-            {
+            for (int i = 0; i < 160; i++) {
                 if (scanline[i] == transparent) { continue; }
                 framebuffer[i, currentLine] = scanline[i];
             }

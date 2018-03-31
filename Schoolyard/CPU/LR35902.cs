@@ -75,8 +75,8 @@ namespace Schoolyard.CPU
         /// <returns>True if interrupt was fired</returns>
         public bool HandleInterrupts()
         {
-            byte flags = mem.Read8(0xFF0F);
-            byte enable = mem.Read8(0xFFFF);
+            byte flags = regs.interruptFlag;
+            byte enable = regs.interruptEnableFlag;
             if ((regs.IME == true) && (enable != 0) && (flags != 0))
             {
                 byte fired = (byte)(enable & flags);
@@ -107,7 +107,7 @@ namespace Schoolyard.CPU
         private void DoInterrupt(Registers.InterruptFlags interrupt, ushort address)
         {
             // Set flag
-            byte flags = mem.Read8(0xFF0F);
+            byte flags = regs.interruptFlag;
             regs.interruptsMasterEnable = false;
             unchecked {
                 flags &= (byte)~(byte)interrupt;
@@ -123,8 +123,8 @@ namespace Schoolyard.CPU
 
         public void IssueInterrupt(Registers.InterruptFlags interrupt)
         {
-            byte flags = mem.Read8(0xFF0F);
-            byte enable = mem.Read8(0xFFFF);
+            byte flags = regs.interruptFlag;
+            byte enable = regs.interruptEnableFlag;
             byte intbyte = (byte)interrupt;
             if ((enable & (byte)intbyte) != 0)
             {
