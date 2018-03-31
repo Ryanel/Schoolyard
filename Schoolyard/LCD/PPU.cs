@@ -8,8 +8,7 @@ namespace Schoolyard.LCD
 {
     public class PPU
     {
-        public enum PPUMode
-        {
+        public enum PPUMode {
             H_BLANK = 0,
             V_BLANK = 1,
             OAM_READ = 2,
@@ -30,6 +29,7 @@ namespace Schoolyard.LCD
         public RAM oam;
         private MemoryController mem;
         private Gameboy gameboy;
+
         // Constants
         public const int width = 160;
         public const int height = 144;
@@ -37,7 +37,8 @@ namespace Schoolyard.LCD
         public const ulong clocksVBlank = 456;
         public const ulong clocksOAMRead = 80;
         public const ulong clocksVRAMRead = 172;
-        public const byte transparent = 0xFF;
+        public const byte transparent = 0xFF; // Used with sprites
+
         // Events
         public event EventHandler OnTileUpdate;
         public event EventHandler OnDisplayRendered;
@@ -231,7 +232,7 @@ namespace Schoolyard.LCD
 
             int tileRow = (yPosition / 8) * 32;
 
-            for (byte x = 0; x < 160; x++) {
+            for (byte x = 0; x < width; x++) {
                 byte xPosition = (byte)(x + screenX);
 
                 if (window) {
@@ -265,11 +266,11 @@ namespace Schoolyard.LCD
 
         private void DrawSpriteScanLine()
         {
-            byte[] scanline = new byte[160];
+            byte[] scanline = new byte[width];
             int numSprites = 0;
 
             // Clear scanline
-            for (int i = 0; i < 160; i++) {
+            for (int i = 0; i < width; i++) {
                 scanline[i] = transparent; // Transparent
             }
 
@@ -317,7 +318,7 @@ namespace Schoolyard.LCD
                         if (color == transparent) { continue; }
 
                         // Output sprite
-                        if (xPosition + x < 160 && xPosition + x > 0) {
+                        if (xPosition + x < width && xPosition + x > 0) {
                             int pos = xPosition + x;                       
                             if(scanline[pos] != transparent) { // Do we have to check for priority?
                                 if(aboveBackground) { // If this sprite can be displayed above...
@@ -333,7 +334,7 @@ namespace Schoolyard.LCD
             }
 
             // Apply scanline
-            for (int i = 0; i < 160; i++) {
+            for (int i = 0; i < width; i++) {
                 if (scanline[i] == transparent) { continue; }
                 framebuffer[i, currentLine] = scanline[i];
             }

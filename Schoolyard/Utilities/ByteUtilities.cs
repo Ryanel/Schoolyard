@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Schoolyard.Utilities
 {
-    public class ByteUtilities
+    public static class ByteUtilities
     {
         public static void Unpack16(ushort value, out byte lsb, out byte msb)
         {
