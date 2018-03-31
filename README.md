@@ -9,8 +9,9 @@ Schoolyard is currently under development. It can only run test carts, but fails
 
 ## Games
 
-* Tetris: Garbled output
-* Dr.Mario: Gameplay desyncs, pills merge.
+* Tetris: Playable
+* Dr.Mario: Playable
+* Kirby's Dream Land: Scrambled Title Screen
 
 ### Tests
 

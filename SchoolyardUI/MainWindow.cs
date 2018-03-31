@@ -29,9 +29,6 @@ namespace SchoolyardUI
             gameboy.Reset();
 
             gameboy.ppu.OnDisplayRendered += Ppu_RenderedFrame;
-
-            gameboy.loader.LoadROM("drmario.gb");
-            gameboy.Start();
         }
 
         private void MainTimer(object sender, EventArgs e)
@@ -135,6 +132,82 @@ namespace SchoolyardUI
                 debugger = new Debugger(gameboy);
             }
             debugger.Show();
+        }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Left)
+            {
+                gameboy.keypad.Left = true;
+            }
+
+            if (e.KeyCode == Keys.Right)
+            {
+                gameboy.keypad.Right = true;
+            }
+
+            if (e.KeyCode == Keys.Up)
+            {
+                gameboy.keypad.Up = true;
+            }
+
+            if (e.KeyCode == Keys.Down)
+            {
+                gameboy.keypad.Down = true;
+            }
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                gameboy.keypad.Start = true;
+            }
+            if (e.KeyCode == Keys.Back)
+            {
+                gameboy.keypad.Select = true;
+            }
+            if (e.KeyCode == Keys.Z)
+            {
+                gameboy.keypad.A = true;
+            }
+            if (e.KeyCode == Keys.X)
+            {
+                gameboy.keypad.B = true;
+            }
+        }
+
+        private void MainWindow_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Left)
+            {
+                gameboy.keypad.Left = false;
+            }
+            if (e.KeyCode == Keys.Right)
+            {
+                gameboy.keypad.Right = false;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                gameboy.keypad.Up = false;
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                gameboy.keypad.Down = false;
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                gameboy.keypad.Start = false;
+            }
+            if (e.KeyCode == Keys.Back)
+            {
+                gameboy.keypad.Select = false;
+            }
+            if (e.KeyCode == Keys.Z)
+            {
+                gameboy.keypad.A = false;
+            }
+            if (e.KeyCode == Keys.X)
+            {
+                gameboy.keypad.B = false;
+            }
         }
     }
 }

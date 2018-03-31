@@ -72,6 +72,8 @@ namespace Schoolyard.Input
             name = "keypad";
             addressBase = 0xFF00;
             size = 1;
+            values[0] = 0xFF;
+            values[1] = 0xFF;
         }
 
         public override byte Read8(ushort address)
@@ -91,7 +93,7 @@ namespace Schoolyard.Input
 
         public void Set(int bank, byte mask, bool pressed)
         {
-            if(pressed)
+            if(!pressed)
             {
                 values[bank] = (byte)(values[bank] | mask);
             }

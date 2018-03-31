@@ -111,10 +111,13 @@
             this.ClientSize = new System.Drawing.Size(479, 455);
             this.Controls.Add(this.displayPicture);
             this.Controls.Add(this.menuStrip);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
             this.Text = "Schoolyard";
             this.Load += new System.EventHandler(this.MainWindow_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.displayPicture)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();

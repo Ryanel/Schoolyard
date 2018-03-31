@@ -25,6 +25,8 @@ namespace Schoolyard.CPU
         private Gameboy gameboy;
         public Memory.MemoryController mem;
 
+        //private System.IO.StreamWriter writer = new System.IO.StreamWriter("./output.txt", false);
+
         public LR35902(Gameboy gameboy)
         {
             this.gameboy = gameboy;
@@ -88,7 +90,6 @@ namespace Schoolyard.CPU
                 }
                 if ((fired & (byte)Registers.InterruptFlags.VBlank) != 0) // VBlank
                 {
-                    mem.Write8(0xFF85, 0); // Set to 0 on vblank
                     DoInterrupt(Registers.InterruptFlags.VBlank, 0x40);
                 }
                 else if ((fired & (byte)Registers.InterruptFlags.LCDStat) != 0) // LCD Status interrupt
@@ -138,9 +139,9 @@ namespace Schoolyard.CPU
         public int RunInstruction()
         {
             Instruction i = Dissassembler.ReadInstruction(this, regs.pc);
+            //writer.WriteLine(String.Format("PC: {0:X4} | {1}", regs.pc, i.ToString()));
             regs.pc += (ushort)i.code.Length;
             int cycles =  i.code.Operation(this, i);
-
             regs.T += cycles;
             instructionsExecuted++;
             return cycles;
