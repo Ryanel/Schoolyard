@@ -203,7 +203,12 @@ namespace Schoolyard.LCD
                 DrawBackgroundScanLine();
             }
 
-            if (regs.LCDSpritesEnabled || true) {
+            if (regs.LCDWindowOn)
+            {
+                DrawWindowScan();
+            }
+
+            if (regs.LCDSpritesEnabled) {
                 DrawSpriteScanLine();
             }
         }
@@ -212,32 +217,67 @@ namespace Schoolyard.LCD
             // Cache properties we'll need
             byte scanLine = (byte)currentLine;
             byte scrollY = regs.ScrollY;
-            byte windowY = regs.WindowY;
-            byte windowX = 0x00; // Load this only if we use the window
 
             bool signedTileIndex = !regs.LCDAddressMode;
-            int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
-            int tileMapAddress = !regs.LCDTileMap ? 0x9800 : 0x9C00;
-            int screenX = regs.ScrollX % 255;
+            int tileDataAddress = !regs.LCDBGTileMap ? 0x8000 : 0x8800;
+            int tileMapAddress = !regs.LCDBGTileMap ? 0x9800 : 0x9C00;
+            byte screenX = regs.ScrollX;
             byte yPosition = (byte)(scanLine + scrollY);
-            bool window = false;
-
-            if (regs.LCDWindowOn && windowY > scrollY) // Determine if window is on
-            {
-                window = true;
-                tileMapAddress = regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
-                yPosition = (byte)(scrollY - windowY);
-                windowX = regs.WindowX;
-            }
 
             int tileRow = (yPosition / 8) * 32;
 
             for (byte x = 0; x < width; x++) {
                 byte xPosition = (byte)(x + screenX);
 
-                if (window) {
-                    xPosition = (byte)(x - windowX);
+                // Get tile address
+                int tileColumn = (xPosition / 8) % 256;
+                ushort tileAddress = (ushort)(tileMapAddress + tileRow + tileColumn);
+
+                // Get tile index
+                int tileIndex;
+                if (signedTileIndex)
+                {
+                    tileIndex = (sbyte)bgram.Read8(tileAddress); // Read directly from cram for increased performance
+                    if (tileIndex < 128)
+                    {
+                        tileIndex += 256;
+                    }
                 }
+                else
+                {
+                    tileIndex = bgram.Read8(tileAddress);
+                }
+
+                // Write pixel to framebuffer
+                byte pixel = tiles[tileIndex, yPosition % 8, xPosition % 8];
+                framebuffer[x, scanLine] = regs.bgPalette[pixel];
+            }
+        }
+
+        private void DrawWindowScan()
+        {
+            // Cache properties we'll need
+            byte scanLine = (byte)currentLine;
+            byte scrollY = regs.ScrollY;
+            byte windowY = regs.WindowY;
+            byte windowX = regs.WindowX;
+
+            if(scanLine < windowY)
+            {
+                return;
+            }
+
+            bool signedTileIndex = !regs.LCDAddressMode;
+            int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
+            int tileMapAddress = !regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
+            byte screenX = regs.ScrollX;
+            byte yPosition = (byte)(scanLine + scrollY - windowY);
+
+            int tileRow = (yPosition / 8) * 32;
+
+            for (byte x = 0; x < width; x++)
+            {
+                byte xPosition = (byte)(x - windowX);
 
                 // Get tile address
                 int tileColumn = (xPosition / 8) % 256;

@@ -13,8 +13,8 @@ namespace Schoolyard.LCD
             Background = 1,
             Sprites = 2,
             SpritesSize = 4,
-            TileMap = 8,
-            BackgroundSet = 16,
+            BGTileMap = 8,
+            TileData = 16,
             WindowOn = 32,
             WindowTileMap = 64,
             DisplayOn = 128,
@@ -124,8 +124,8 @@ namespace Schoolyard.LCD
         public bool LCDBackgroundEnabled { get { return (LCDControl & (byte)LCDFlags.Background) != 0; } }
         public bool LCDSpritesEnabled { get { return (LCDControl & (byte)LCDFlags.Sprites) != 0; } }
         public bool LCDSpriteSize { get { return (LCDControl & (byte)LCDFlags.SpritesSize) != 0; } }
-        public bool LCDTileMap { get { return (LCDControl & (byte)LCDFlags.TileMap) != 0; } }
-        public bool LCDAddressMode { get { return (LCDControl & (byte)LCDFlags.BackgroundSet) != 0; } }
+        public bool LCDBGTileMap { get { return (LCDControl & (byte)LCDFlags.BGTileMap) != 0; } }
+        public bool LCDAddressMode { get { return (LCDControl & (byte)LCDFlags.TileData) != 0; } }
         public bool LCDWindowOn { get { return (LCDControl & (byte)LCDFlags.WindowOn) != 0; } }
         public bool LCDWindowTileMap { get { return (LCDControl & (byte)LCDFlags.WindowTileMap) != 0; } }
         public bool LCDDisplayOn { get { return (LCDControl & (byte)LCDFlags.DisplayOn) != 0; } }
