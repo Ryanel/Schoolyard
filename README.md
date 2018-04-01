@@ -11,7 +11,7 @@ Schoolyard is currently under development. It can only run test carts, but fails
 
 * Tetris: Playable
 * Dr.Mario: Playable
-* Kirby's Dream Land: Scrambled Title Screen
+* Kirby's Dream Land: Playable
 
 ### Tests
 

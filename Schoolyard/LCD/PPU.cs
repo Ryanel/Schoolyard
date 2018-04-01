@@ -330,7 +330,7 @@ namespace Schoolyard.LCD
                     numSprites++;
 
                     // Object properties
-                    bool palette2         = (flags & 0b00010000) != 0;
+                    bool palette1         = (flags & 0b00010000) != 0;
                     bool horizontalMirror = (flags & 0b00100000) != 0;
                     bool verticalMirror   = (flags & 0b01000000) != 0;
                     bool aboveBackground  = (flags & 0b10000000) != 0;
@@ -342,11 +342,11 @@ namespace Schoolyard.LCD
                     }
 
                     byte[] objectPallete;
-                    if (palette2) {
-                        objectPallete = regs.objPalette2; 
+                    if (palette1) {
+                        objectPallete = regs.objPalette1; 
                     }
                     else {
-                        objectPallete = regs.objPalette1;
+                        objectPallete = regs.objPalette0;
                     }
 
                     for (int x = 7; x >= 0; x--)
@@ -355,7 +355,7 @@ namespace Schoolyard.LCD
                         if(horizontalMirror) { tileX = 7 - x; }
 
                         byte color = tiles[tileIndex + (vLine < 8 ? 0:1), (vLine % 8), tileX % 8];
-                        if (color == transparent) { continue; }
+                        if (color == 0) { continue; }
                         int pos = xPosition + x;
                         // Output sprite
                         if (pos < width && pos >= 0) {

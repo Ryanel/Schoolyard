@@ -150,6 +150,8 @@ namespace Schoolyard.LCD
             int translatedAddress = address - addressBase;
             if (translatedAddress == 4) { return; } // Block writes to 0xFF44
             if (translatedAddress == 7) { BackgroundPalette = val; return; } // Capture writes to the background palette
+            if (translatedAddress == 8) { Obj0Palette = val; return; } // Capture writes to the background palette
+            if (translatedAddress == 9) { Obj1Palette = val; return; } // Capture writes to the background palette
             values[translatedAddress] = val;
         }
 
