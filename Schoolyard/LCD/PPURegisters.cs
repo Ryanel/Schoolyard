@@ -64,8 +64,8 @@ namespace Schoolyard.LCD
         }
 
         public byte[] bgPalette = new byte[4] { 0x0, 0x1, 0x2, 0x3 };
-        public byte[] objPalette1 = new byte[4] { 0xFF, 0x1, 0x2, 0x3 };
-        public byte[] objPalette2 = new byte[4] { 0XFF, 0x1, 0x2, 0x3 };
+        public byte[] objPalette0 = new byte[4] { 0xFF, 0x1, 0x2, 0x3 };
+        public byte[] objPalette1 = new byte[4] { 0XFF, 0x1, 0x2, 0x3 };
 
         public byte BackgroundPalette
         {
@@ -85,10 +85,10 @@ namespace Schoolyard.LCD
             set
             {
                 values[8] = value;
-                objPalette1[3] = PaletteToColor(value, 3);
-                objPalette1[2] = PaletteToColor(value, 2);
-                objPalette1[1] = PaletteToColor(value, 1);
-                objPalette1[0] = 0xFF;
+                objPalette0[3] = PaletteToColor(value, 3);
+                objPalette0[2] = PaletteToColor(value, 2);
+                objPalette0[1] = PaletteToColor(value, 1);
+                objPalette0[0] = 0xFF;
             }
         }
 
@@ -98,10 +98,10 @@ namespace Schoolyard.LCD
             set
             {
                 values[9] = value;
-                objPalette2[3] = PaletteToColor(value, 3);
-                objPalette2[2] = PaletteToColor(value, 2);
-                objPalette2[1] = PaletteToColor(value, 1);
-                objPalette2[0] = 0xFF;
+                objPalette1[3] = PaletteToColor(value, 3);
+                objPalette1[2] = PaletteToColor(value, 2);
+                objPalette1[1] = PaletteToColor(value, 1);
+                objPalette1[0] = 0xFF;
             }
         }
 

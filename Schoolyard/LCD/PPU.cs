@@ -343,7 +343,7 @@ namespace Schoolyard.LCD
 
                     byte[] objectPallete;
                     if (palette1) {
-                        objectPallete = regs.objPalette1; 
+                        objectPallete = regs.objPalette0; 
                     }
                     else {
                         objectPallete = regs.objPalette0;
