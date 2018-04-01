@@ -262,8 +262,7 @@ namespace Schoolyard.LCD
             byte windowY = regs.WindowY;
             byte windowX = regs.WindowX;
 
-            if(scanLine < windowY)
-            {
+            if(scanLine < windowY) {
                 return;
             }
 
@@ -271,7 +270,7 @@ namespace Schoolyard.LCD
             int tileDataAddress = !regs.LCDWindowTileMap ? 0x8000 : 0x8800;
             int tileMapAddress = !regs.LCDWindowTileMap ? 0x9800 : 0x9C00;
             byte screenX = regs.ScrollX;
-            byte yPosition = (byte)(scanLine + scrollY - windowY);
+            byte yPosition = (byte)(scanLine - windowY);
 
             int tileRow = (yPosition / 8) * 32;
 
@@ -288,8 +287,7 @@ namespace Schoolyard.LCD
                 if (signedTileIndex)
                 {
                     tileIndex = (sbyte)bgram.Read8(tileAddress); // Read directly from cram for increased performance
-                    if (tileIndex < 128)
-                    {
+                    if (tileIndex < 128) {
                         tileIndex += 256;
                     }
                 }

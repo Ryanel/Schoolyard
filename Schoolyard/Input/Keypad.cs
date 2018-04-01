@@ -72,8 +72,8 @@ namespace Schoolyard.Input
             name = "keypad";
             addressBase = 0xFF00;
             size = 1;
-            values[0] = 0xFF;
-            values[1] = 0xFF;
+            values[0] = 0xCF;
+            values[1] = 0xCF;
         }
 
         public override byte Read8(ushort address)
