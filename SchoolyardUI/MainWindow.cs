@@ -9,26 +9,42 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Schoolyard;
+using SFML;
+
 namespace SchoolyardUI
 {
     public partial class MainWindow : Form
     {
         Debugger debugger;
         Gameboy gameboy;
-        Bitmap displayImage;
-        bool hasRenderedFrame = false;
+
+        private bool hasRenderedFrame = false;
+        private bool hasExited = false;
+
+        DrawingSurface renderSurface;
+        SFML.Graphics.RenderWindow sfmlWindow;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        public void InitGraphics()
+        {
+            renderSurface = new DrawingSurface();
+            renderSurface.Dock = DockStyle.Fill;
+            Controls.Add(renderSurface);
+            sfmlWindow = new SFML.Graphics.RenderWindow(renderSurface.Handle);
+            sfmlWindow.SetActive(false);
+            smflDisplayThread.RunWorkerAsync();
+        }
+
         private void MainWindow_Load(object sender, EventArgs e)
         {
             gameboy = new Gameboy();
             gameboy.Reset();
-
-            gameboy.ppu.OnDisplayRendered += Ppu_RenderedFrame;
+            gameboy.ppu.OnDisplayRendered += OnRenderFrame;
+            InitGraphics();
         }
 
         private void MainTimer(object sender, EventArgs e)
@@ -42,67 +58,9 @@ namespace SchoolyardUI
             hasRenderedFrame = false;
         }
 
-        private void Ppu_RenderedFrame(object sender, EventArgs e)
+        private void OnRenderFrame(object sender, EventArgs e)
         {
-            UpdateDisplay();
-        }
-        
-        // Display
-        void UpdateDisplay()
-        {
-            Schoolyard.LCD.PPU ppu = gameboy.ppu;
             hasRenderedFrame = true;
-            if (displayImage == null)
-            {
-                displayImage = new Bitmap(160, 144);
-            }
-
-            Color white = Color.FromArgb(224, 248, 208);
-            Color lightGray = Color.FromArgb(136, 192, 112);
-            Color darkGray = Color.FromArgb(52, 104, 86);
-            Color black = Color.FromArgb(8, 24, 32);
-
-            for (int y = 0; y < 144; y++)
-            {
-                for (int x = 0; x < 160; x++)
-                {
-                    byte raw = gameboy.ppu.framebuffer[x, y];
-
-                    switch (raw)
-                    {
-                        case 0x0:
-                            displayImage.SetPixel(x, y, white);
-                            break;
-                        case 0x1:
-                            displayImage.SetPixel(x, y, lightGray);
-                            break;
-                        case 0x2:
-                            displayImage.SetPixel(x, y, darkGray);
-                            break;
-                        case 0x3:
-                        default:
-                            displayImage.SetPixel(x, y, black);
-                            break;
-                    }
-                }
-            }
-            
-            displayPicture.Image = displayImage;
-        }
-
-        private void DisplayPicture_Paint(object sender, PaintEventArgs e)
-        {
-            if (displayImage == null) { return; }
-            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            e.Graphics.DrawImage(
-               displayImage,
-                new Rectangle(0, 0, displayPicture.Width, displayPicture.Height),
-                // destination rectangle 
-                0,
-                0,           // upper-left corner of source rectangle
-                displayImage.Width,       // width of source rectangle
-                displayImage.Height,      // height of source rectangle
-                GraphicsUnit.Pixel);
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -208,6 +166,64 @@ namespace SchoolyardUI
             {
                 gameboy.keypad.B = false;
             }
+        }
+
+        private void smflDisplayThread_DoWork(object sender, DoWorkEventArgs e)
+        {
+            SFML.Graphics.Image gameboyScreen = new SFML.Graphics.Image(Schoolyard.LCD.PPU.width, Schoolyard.LCD.PPU.height);
+            SFML.Graphics.Texture gameboyTexture = new SFML.Graphics.Texture(gameboyScreen);
+            SFML.Graphics.Sprite gameboySprite = new SFML.Graphics.Sprite(gameboyTexture);
+            SFML.Graphics.View gameboyView = new SFML.Graphics.View(new SFML.System.Vector2f(Schoolyard.LCD.PPU.width / 2, Schoolyard.LCD.PPU.height / 2), (new SFML.System.Vector2f(Schoolyard.LCD.PPU.width, Schoolyard.LCD.PPU.height)));
+            gameboyTexture.Smooth = false;
+
+            while(!hasExited)
+            {
+                if(sfmlWindow == null) {
+                    continue;
+                }
+                sfmlWindow.DispatchEvents();
+                sfmlWindow.Clear(SFML.Graphics.Color.Black); // Clear
+                sfmlWindow.SetView(gameboyView);
+                // Draw gameboy screen
+                SFML.Graphics.Color white = new SFML.Graphics.Color(224, 248, 208);
+                SFML.Graphics.Color lightGray = new SFML.Graphics.Color(136, 192, 112);
+                SFML.Graphics.Color darkGray = new SFML.Graphics.Color(52, 104, 86);
+                SFML.Graphics.Color black = new SFML.Graphics.Color(8, 24, 32);
+
+                for (uint y = 0; y < 144; y++)
+                {
+                    for (uint x = 0; x < 160; x++)
+                    {
+                        byte raw = gameboy.ppu.framebuffer[x, y];
+
+                        switch (raw)
+                        {
+                            case 0x0:
+                                gameboyScreen.SetPixel(x, y, white);
+                                break;
+                            case 0x1:
+                                gameboyScreen.SetPixel(x, y, lightGray);
+                                break;
+                            case 0x2:
+                                gameboyScreen.SetPixel(x, y, darkGray);
+                                break;
+                            case 0x3:
+                            default:
+                                gameboyScreen.SetPixel(x, y, black);
+                                break;
+                        }
+                    }
+                }
+                gameboyTexture.Update(gameboyScreen);
+                sfmlWindow.Draw(gameboySprite);
+                sfmlWindow.Display(); // display what SFML has drawn to the screen
+                System.Threading.Thread.Sleep(15);
+            }
+        }
+
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            hasExited = true;
         }
     }
 }

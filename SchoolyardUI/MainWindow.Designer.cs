@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.displayPicture = new System.Windows.Forms.PictureBox();
             this.globalTimer = new System.Windows.Forms.Timer(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
@@ -37,25 +36,14 @@
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debuggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.displayPicture)).BeginInit();
+            this.smflDisplayThread = new System.ComponentModel.BackgroundWorker();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // displayPicture
-            // 
-            this.displayPicture.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.displayPicture.Location = new System.Drawing.Point(0, 24);
-            this.displayPicture.Margin = new System.Windows.Forms.Padding(0);
-            this.displayPicture.Name = "displayPicture";
-            this.displayPicture.Size = new System.Drawing.Size(479, 431);
-            this.displayPicture.TabIndex = 0;
-            this.displayPicture.TabStop = false;
-            this.displayPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.DisplayPicture_Paint);
             // 
             // globalTimer
             // 
             this.globalTimer.Enabled = true;
-            this.globalTimer.Interval = 1;
+            this.globalTimer.Interval = 16;
             this.globalTimer.Tick += new System.EventHandler(this.MainTimer);
             // 
             // openFileDialog
@@ -104,21 +92,24 @@
             this.debuggerToolStripMenuItem.Text = "Debugger";
             this.debuggerToolStripMenuItem.Click += new System.EventHandler(this.debuggerToolStripMenuItem_Click);
             // 
+            // smflDisplayThread
+            // 
+            this.smflDisplayThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.smflDisplayThread_DoWork);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(479, 455);
-            this.Controls.Add(this.displayPicture);
             this.Controls.Add(this.menuStrip);
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
             this.Text = "Schoolyard";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyUp);
-            ((System.ComponentModel.ISupportInitialize)(this.displayPicture)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -127,8 +118,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox displayPicture;
         private System.Windows.Forms.Timer globalTimer;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.MenuStrip menuStrip;
@@ -136,6 +125,7 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem debuggerToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker smflDisplayThread;
     }
 }
 
