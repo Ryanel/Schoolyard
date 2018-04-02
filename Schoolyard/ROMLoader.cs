@@ -38,7 +38,7 @@ namespace Schoolyard
             {
                 case 00:
                     Console.WriteLine("CART: No MBC, straight ROM");
-                    mbc = new MBC.MBCNone("mbcnone", 0x0000, rom, size);
+                    mbc = new MBC.MBCNone("rom(none)", 0x0000, rom, size);
                     break;
                 case 01:
                     Console.WriteLine("CART: MBC1");
