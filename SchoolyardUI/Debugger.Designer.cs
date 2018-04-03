@@ -42,6 +42,7 @@
             this.labelBC = new System.Windows.Forms.Label();
             this.labelAF = new System.Windows.Forms.Label();
             this.ppuGroupBox = new System.Windows.Forms.GroupBox();
+            this.updateTiles = new System.Windows.Forms.CheckBox();
             this.ppuTiles = new System.Windows.Forms.PictureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +56,6 @@
             this.fpsLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.DebugTimer = new System.Windows.Forms.Timer(this.components);
             this.PerSecondTimer = new System.Windows.Forms.Timer(this.components);
-            this.updateTiles = new System.Windows.Forms.CheckBox();
             this.cpuGroupBox.SuspendLayout();
             this.ppuGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ppuTiles)).BeginInit();
@@ -202,6 +202,19 @@
             this.ppuGroupBox.TabStop = false;
             this.ppuGroupBox.Text = "PPU";
             // 
+            // updateTiles
+            // 
+            this.updateTiles.AutoSize = true;
+            this.updateTiles.Checked = true;
+            this.updateTiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.updateTiles.Location = new System.Drawing.Point(2, 80);
+            this.updateTiles.Name = "updateTiles";
+            this.updateTiles.Size = new System.Drawing.Size(122, 17);
+            this.updateTiles.TabIndex = 1;
+            this.updateTiles.Text = "Update Tile Preview";
+            this.updateTiles.UseVisualStyleBackColor = true;
+            this.updateTiles.CheckedChanged += new System.EventHandler(this.updateTiles_CheckedChanged);
+            // 
             // ppuTiles
             // 
             this.ppuTiles.Location = new System.Drawing.Point(2, 103);
@@ -294,7 +307,7 @@
             // DebugTimer
             // 
             this.DebugTimer.Enabled = true;
-            this.DebugTimer.Interval = 16;
+            this.DebugTimer.Interval = 8;
             this.DebugTimer.Tick += new System.EventHandler(this.DebugTimer_Tick);
             // 
             // PerSecondTimer
@@ -302,19 +315,6 @@
             this.PerSecondTimer.Enabled = true;
             this.PerSecondTimer.Interval = 1000;
             this.PerSecondTimer.Tick += new System.EventHandler(this.PerSecondTimer_Tick);
-            // 
-            // updateTiles
-            // 
-            this.updateTiles.AutoSize = true;
-            this.updateTiles.Checked = true;
-            this.updateTiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.updateTiles.Location = new System.Drawing.Point(2, 80);
-            this.updateTiles.Name = "updateTiles";
-            this.updateTiles.Size = new System.Drawing.Size(122, 17);
-            this.updateTiles.TabIndex = 1;
-            this.updateTiles.Text = "Update Tile Preview";
-            this.updateTiles.UseVisualStyleBackColor = true;
-            this.updateTiles.CheckedChanged += new System.EventHandler(this.updateTiles_CheckedChanged);
             // 
             // Debugger
             // 

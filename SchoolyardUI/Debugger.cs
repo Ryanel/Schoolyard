@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Schoolyard;
+
 namespace SchoolyardUI
 {
     public partial class Debugger : Form
@@ -31,6 +26,8 @@ namespace SchoolyardUI
             Size toResize = Size;
             toResize.Width = 173;
             Size = toResize;
+            lastFrame = target.ppu.framesRendered;
+            lastInstructions = target.cpu.instructionsExecuted;
         }
 
         private void DebugTimer_Tick(object sender, EventArgs e)
