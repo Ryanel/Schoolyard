@@ -10,40 +10,58 @@ namespace Schoolyard.MBC
     {
         public int romSize = 0x0;
         private int currentBank = 1;
+        private int currentRamBank = 1;
         byte[] values;
+        byte[] ram;
+        public bool hasRam = false;
+        private int numRamBanks = 1;
+        private bool ramEnabled = false;
+        private bool ramModeSelect = false;
 
-        public MBC1(string name, ushort addressBase, byte[] data, int size)
-        {
+        public const int romBankSize = 0x4000;
+        public const int ramBankSize = 0x2000;
+
+        public MBC1(string name, ushort addressBase, byte[] data, int size) {
             this.name = name;
             this.addressBase = addressBase;
-            this.size = 0x8000;
+            this.size = 0xBFFF;
             romSize = size;
             values = data;
+            IdentifyInfo();
+
+            ram = new byte[numRamBanks * ramBankSize];
         }
 
-        public override ushort Read16(ushort address)
+        private void IdentifyInfo()
         {
+
+        }
+
+        public override ushort Read16(ushort address) {
             byte lsb = Read8(address);
             byte msb = Read8((ushort)(address + 1));
             ushort result = (ushort)((ushort)(msb << 8) + lsb);
             return result;
         }
 
-        public override byte Read8(ushort address)
-        {
-            if (address < 0x4000) // Bank Zero
-            {
+        public override byte Read8(ushort address) {
+            if (address < 0x4000) { // Bank Zero 
                 return values[address];
             }
-
-            if (address >= 0x4000 && address < 0x8000) // Bank n
-            {
-                int bankSize = 0x4000; // 16k
-                int bankTranslated = bankSize * currentBank;
-                int finalTranslated = bankTranslated + (address - 0x4000);
+            else if (address >= 0x4000 && address < 0x8000) { // Bank n
+                int bankTranslated = romBankSize * currentBank;
+                int finalTranslated = bankTranslated + (address - romBankSize);
                 return values[finalTranslated];
             }
-            return 0;
+            else { // Ram
+                if(ramEnabled) {
+                    int ramAddress = (address - 0xA000) + (currentRamBank * ramBankSize);
+                    return ram[ramAddress];
+                }
+                else {
+                    return 0xFF; // 0xFF is the default value of unmapped memory.
+                }
+            }
         }
 
         // This is ROM, so don't handle writes at all.
@@ -51,11 +69,18 @@ namespace Schoolyard.MBC
             Write8(address, (byte)(val & 0x00FF));
             Write8((ushort)(address + 1), (byte)((val & 0xFF00) >> 8));
         }
-        public override void Write8(ushort address, byte val)
-        {
-            if (address < 0x1FFF) // Ram enable
-            {
-                Console.WriteLine("No ram support yet!");
+
+        public override void Write8(ushort address, byte val) {
+            if (address < 0x2000) { // Ram enable
+
+                if ((val & 0xA) != 0)
+                {
+                    ramEnabled = true;
+                }
+                else
+                {
+                    ramEnabled = false;
+                }
             }
 
             if (address >= 0x2000 && address <= 0x3FFF) // ROM bank number

@@ -38,6 +38,7 @@ namespace Schoolyard
             RAM hiram  = new RAM("hiram", 0xFF80, 0x7F);
             InterruptEnableFlag inte = new InterruptEnableFlag("ie", 0xFFFF, cpu.regs);
             InterruptFlag intf = new InterruptFlag("if", 0xFF0F, cpu.regs);
+
             // Memory Mapping rules
             // 1. Order determines priorities
             // 2. Multiple devices can be mapped to the same address
