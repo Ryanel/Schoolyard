@@ -36,7 +36,8 @@
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debuggerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.smflDisplayThread = new System.ComponentModel.BackgroundWorker();
+            this.sfmlThread = new System.ComponentModel.BackgroundWorker();
+            this.renderSurface = new SchoolyardUI.DrawingSurface();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -92,24 +93,30 @@
             this.debuggerToolStripMenuItem.Text = "Debugger";
             this.debuggerToolStripMenuItem.Click += new System.EventHandler(this.debuggerToolStripMenuItem_Click);
             // 
-            // smflDisplayThread
+            // sfmlThread
             // 
-            this.smflDisplayThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.smflDisplayThread_DoWork);
+            this.sfmlThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.smflDisplayThread_DoWork);
+            // 
+            // renderSurface
+            // 
+            this.renderSurface.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.renderSurface.Location = new System.Drawing.Point(0, 24);
+            this.renderSurface.Name = "renderSurface";
+            this.renderSurface.Size = new System.Drawing.Size(479, 431);
+            this.renderSurface.TabIndex = 2;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(479, 455);
+            this.Controls.Add(this.renderSurface);
             this.Controls.Add(this.menuStrip);
-            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainWindow";
             this.Text = "Schoolyard";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
             this.Load += new System.EventHandler(this.MainWindow_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyDown);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyUp);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -125,7 +132,8 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem debuggerToolStripMenuItem;
-        private System.ComponentModel.BackgroundWorker smflDisplayThread;
+        private System.ComponentModel.BackgroundWorker sfmlThread;
+        private DrawingSurface renderSurface;
     }
 }
 

@@ -10,19 +10,18 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Schoolyard;
 using SFML;
-
+using SFML.Window;
 namespace SchoolyardUI
 {
     public partial class MainWindow : Form
     {
-        Debugger debugger;
-        Gameboy gameboy;
+        private Debugger debugger;
+        private Gameboy gameboy;
 
         private bool hasRenderedFrame = false;
         private bool hasExited = false;
 
-        DrawingSurface renderSurface;
-        SFML.Graphics.RenderWindow sfmlWindow;
+        private SFML.Graphics.RenderWindow sfmlWindow;
 
         public MainWindow()
         {
@@ -31,12 +30,10 @@ namespace SchoolyardUI
 
         public void InitGraphics()
         {
-            renderSurface = new DrawingSurface();
-            renderSurface.Dock = DockStyle.Fill;
-            Controls.Add(renderSurface);
+            renderSurface.BeingDrawnTo = true;
             sfmlWindow = new SFML.Graphics.RenderWindow(renderSurface.Handle);
             sfmlWindow.SetActive(false);
-            smflDisplayThread.RunWorkerAsync();
+            sfmlThread.RunWorkerAsync();
         }
 
         private void MainWindow_Load(object sender, EventArgs e)
@@ -92,79 +89,18 @@ namespace SchoolyardUI
             debugger.Show();
         }
 
-        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        private void CheckForInput()
         {
-            if (e.KeyCode == Keys.Left)
+            lock(gameboy.keypad)
             {
-                gameboy.keypad.Left = true;
-            }
-
-            if (e.KeyCode == Keys.Right)
-            {
-                gameboy.keypad.Right = true;
-            }
-
-            if (e.KeyCode == Keys.Up)
-            {
-                gameboy.keypad.Up = true;
-            }
-
-            if (e.KeyCode == Keys.Down)
-            {
-                gameboy.keypad.Down = true;
-            }
-
-            if (e.KeyCode == Keys.Enter)
-            {
-                gameboy.keypad.Start = true;
-            }
-            if (e.KeyCode == Keys.Back)
-            {
-                gameboy.keypad.Select = true;
-            }
-            if (e.KeyCode == Keys.Z)
-            {
-                gameboy.keypad.A = true;
-            }
-            if (e.KeyCode == Keys.X)
-            {
-                gameboy.keypad.B = true;
-            }
-        }
-
-        private void MainWindow_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Left)
-            {
-                gameboy.keypad.Left = false;
-            }
-            if (e.KeyCode == Keys.Right)
-            {
-                gameboy.keypad.Right = false;
-            }
-            if (e.KeyCode == Keys.Up)
-            {
-                gameboy.keypad.Up = false;
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                gameboy.keypad.Down = false;
-            }
-            if (e.KeyCode == Keys.Enter)
-            {
-                gameboy.keypad.Start = false;
-            }
-            if (e.KeyCode == Keys.Back)
-            {
-                gameboy.keypad.Select = false;
-            }
-            if (e.KeyCode == Keys.Z)
-            {
-                gameboy.keypad.A = false;
-            }
-            if (e.KeyCode == Keys.X)
-            {
-                gameboy.keypad.B = false;
+                gameboy.keypad.Left = Keyboard.IsKeyPressed(Keyboard.Key.Left);
+                gameboy.keypad.Right = Keyboard.IsKeyPressed(Keyboard.Key.Right);
+                gameboy.keypad.Down = Keyboard.IsKeyPressed(Keyboard.Key.Down);
+                gameboy.keypad.Up = Keyboard.IsKeyPressed(Keyboard.Key.Up);
+                gameboy.keypad.Start = Keyboard.IsKeyPressed(Keyboard.Key.Return);
+                gameboy.keypad.Select = Keyboard.IsKeyPressed(Keyboard.Key.BackSpace);
+                gameboy.keypad.A = Keyboard.IsKeyPressed(Keyboard.Key.A);
+                gameboy.keypad.B = Keyboard.IsKeyPressed(Keyboard.Key.S);
             }
         }
 
@@ -182,6 +118,7 @@ namespace SchoolyardUI
                     continue;
                 }
                 sfmlWindow.DispatchEvents();
+                CheckForInput();
                 sfmlWindow.Clear(SFML.Graphics.Color.Black); // Clear
                 sfmlWindow.SetView(gameboyView);
                 // Draw gameboy screen
