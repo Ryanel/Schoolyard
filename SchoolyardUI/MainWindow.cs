@@ -79,13 +79,13 @@ namespace SchoolyardUI
                 {
                     emulationThread.RunWorkerAsync();
                 }
+                this.Text = "Schoolyard - " + loadedRom;
             }
         }
 
         /* ================================
          * Emulation thread 
          =================================*/
-
         private void EmulationThread_DoWork(object sender, DoWorkEventArgs e)
         {
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -226,7 +226,6 @@ namespace SchoolyardUI
 
         private void MainWindow_SizeChanged(object sender, EventArgs e)
         {
-
             Height = (int)(Ratio * Width); // Maintain aspect ratio
         }
 
