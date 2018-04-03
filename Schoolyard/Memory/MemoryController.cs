@@ -7,9 +7,13 @@ namespace Schoolyard.Memory
     {
         public Gameboy gameboy;
         private List<MemoryDevice> devices = new List<MemoryDevice>();
-        public string serialOut = ""; // Hack to allow easy serial output
         private MemoryDevice rom;
-        public bool debugLog = false;
+
+        public const bool debugLog = false;
+        public string serialOut = ""; // Hack to allow easy serial output
+        private bool cacheUpToDate = false;
+        private MemoryDevice[] translationCache = new MemoryDevice[0x10000];
+
         public MemoryController(Gameboy gameboy)
         {
             this.gameboy = gameboy;
@@ -17,19 +21,27 @@ namespace Schoolyard.Memory
 
         public void Map(MemoryDevice device) {
             devices.Add(device);
+            cacheUpToDate = false;
         }
         public void Map(MemoryDevice device, bool rom) {
             devices.Add(device);
             this.rom = device;
+            cacheUpToDate = false;
+            RebuildCache();
         }
 
         public void UnMap(MemoryDevice device) {
             devices.Remove(device);
+            cacheUpToDate = false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryDevice GetMappedDevice(ushort address)
         {
+            if(cacheUpToDate)
+            {
+                return translationCache[address];
+            }
             MemoryDevice result = null;
             int devCount = devices.Count;
             for (int i = 0; i < devCount; i++) // We don't foreach for performance, as this is called on every memory read
@@ -46,17 +58,23 @@ namespace Schoolyard.Memory
 
             return result;
         }
+
+
+        public void RebuildCache()
+        {
+            cacheUpToDate = false;
+            for (int i = 0; i <= 0xFFFF; i++)
+            {
+                translationCache[i] = GetMappedDevice((ushort)i);
+            }
+            cacheUpToDate = true;
+        }
         
         public byte Read8(ushort address)
         {
             // Optimization: 
             // Most data is read from the ROM. This fast-tracks all reads to rom out of a loop,
             // making it a O(1) operation to read from ROM instead of a O(n) operation
-            if(address < 0x8000)
-            {
-                return rom.Read8(address);
-            }
-
             MemoryDevice dev = GetMappedDevice(address);
             if (dev != null) {
                 if (debugLog)

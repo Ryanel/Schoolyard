@@ -58,6 +58,8 @@ namespace Schoolyard
             memory.Map(hwio);      // 0xFF00 - 0xFF80 Unmapped HWIO
             memory.Map(inte);        // 0xFFFF          Interrupt enable byte
 
+            memory.RebuildCache();
+
             memory.Write8(0xFF05, 0x00);
             memory.Write8(0xFF06, 0x00);
             memory.Write8(0xFF07, 0x00);
