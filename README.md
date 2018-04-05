@@ -3,8 +3,9 @@
 Schoolyard is an original Gameboy Emulator.
 It is being designed in a simple and readable manner.
 
-It is named Schoolyard because that is where Gameboy's used to be played a lot.
+![Kirby in Schoolyard](Docs/picture_kirby.png "Kirby running in Schoolyard")
 
+It is named Schoolyard because that is where Gameboy's used to be played a lot.
 Schoolyard is currently under development. It can only run test carts, but fails at some tests.
 
 ## Games
@@ -12,6 +13,15 @@ Schoolyard is currently under development. It can only run test carts, but fails
 * Tetris: Playable
 * Dr.Mario: Playable
 * Kirby's Dream Land: Playable
+* Super Mario Land: Stage doesn't scroll
+
+## Known Issues
+
+* Super mario land: Stages don't scroll
+* Dr Mario: The bugs at the bottom animate very fast
+* In 16x8 sprite mode, the bottom pixels will appear at the top.
+* No audio (unimplemented)
+* No RAM support in MBC1
 
 ### Tests
 

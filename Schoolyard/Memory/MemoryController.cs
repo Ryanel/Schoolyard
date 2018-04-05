@@ -72,9 +72,6 @@ namespace Schoolyard.Memory
         
         public byte Read8(ushort address)
         {
-            // Optimization: 
-            // Most data is read from the ROM. This fast-tracks all reads to rom out of a loop,
-            // making it a O(1) operation to read from ROM instead of a O(n) operation
             MemoryDevice dev = GetMappedDevice(address);
             if (dev != null) {
                 if (debugLog)
