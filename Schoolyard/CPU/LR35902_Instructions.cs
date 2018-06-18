@@ -13,8 +13,8 @@ namespace Schoolyard.CPU
 
         public struct Instruction
         {
-            public byte Opcode { get; }
-            public ushort Offset { get; }
+            public byte Opcode;
+            public ushort Offset;
             public byte[] Operands;
 
             public Opcode code;
