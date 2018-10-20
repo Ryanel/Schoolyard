@@ -36,6 +36,7 @@ namespace Schoolyard
 
             switch (cartType)
             {
+                // MBC1
                 case 00:
                     Console.WriteLine("CART: No MBC, straight ROM");
                     mbc = new MBC.MBCNone("rom(none)", 0x0000, rom, size);
@@ -52,6 +53,18 @@ namespace Schoolyard
                     Console.WriteLine("CART: MBC1+RAM+BATTERY");
                     mbc = new MBC.MBC1("rom(mbc1)", 0x0000, rom, size);
                     break;
+                
+                // MBC2
+                case 05:
+                    Console.WriteLine("CART: MBC2");
+                    mbc = new MBC.MBC2("rom(mbc2)", 0x0000, rom, size);
+                    break;
+
+                case 06:
+                    Console.WriteLine("CART: MBC2+BATTERY");
+                    mbc = new MBC.MBC2("rom(mbc2)", 0x0000, rom, size);
+                    break;
+
                 default:
                     Console.WriteLine("Unknown Cart type (" + cartType + ")!");
                     return false;

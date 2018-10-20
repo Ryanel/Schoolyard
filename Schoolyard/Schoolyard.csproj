@@ -71,6 +71,7 @@
     <Compile Include="Input\Keypad.cs" />
     <Compile Include="LCD\DMAController.cs" />
     <Compile Include="LCD\PPUCharacterRAM.cs" />
+    <Compile Include="MBC\MBC2.cs" />
     <Compile Include="MBC\MBC1.cs" />
     <Compile Include="MBC\MBCNone.cs" />
     <Compile Include="Memory\EchoRAM.cs" />
