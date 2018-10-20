@@ -18,6 +18,7 @@ namespace Schoolyard
         public Timer timer;
         public DMAController dma;
         public Input.Keypad keypad;
+
         public Gameboy()
         {
             loader = new ROMLoader(this);

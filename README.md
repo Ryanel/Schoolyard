@@ -14,6 +14,7 @@ Schoolyard is currently under development. It can only run test carts, but fails
 * Dr.Mario: Playable
 * Kirby's Dream Land: Playable
 * Super Mario Land: Stage doesn't scroll
+* Link's Awakening: Playable
 
 ## Known Issues
 
@@ -21,7 +22,12 @@ Schoolyard is currently under development. It can only run test carts, but fails
 * Dr Mario: The bugs at the bottom animate very fast
 * In 16x8 sprite mode, the bottom pixels will appear at the top.
 * No audio (unimplemented)
-* No RAM support in MBC1
+
+## Todo's
+* Pass all tests
+* Comb-through the Opcode table and package any repetitive code
+* Implement more memory controllers
+* CGB support!
 
 ### Tests
 
@@ -40,7 +46,3 @@ Schoolyard is currently under development. It can only run test carts, but fails
   * 10-bit ops: Passes
   * 11-op a,(hl): Passes
 
-## Todo's
-
-* Pass all tests
-* Comb-through the Opcode table and package any repetitive code

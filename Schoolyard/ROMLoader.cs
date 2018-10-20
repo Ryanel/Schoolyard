@@ -44,8 +44,16 @@ namespace Schoolyard
                     Console.WriteLine("CART: MBC1");
                     mbc = new MBC.MBC1("rom(mbc1)", 0x0000, rom, size);
                     break;
+                case 02:
+                    Console.WriteLine("CART: MBC1+RAM");
+                    mbc = new MBC.MBC1("rom(mbc1)", 0x0000, rom, size);
+                    break;
+                case 03:
+                    Console.WriteLine("CART: MBC1+RAM+BATTERY");
+                    mbc = new MBC.MBC1("rom(mbc1)", 0x0000, rom, size);
+                    break;
                 default:
-                    Console.WriteLine("Unknown Cart type!");
+                    Console.WriteLine("Unknown Cart type (" + cartType + ")!");
                     return false;
             }
 
