@@ -15,15 +15,19 @@ Schoolyard is currently under development. It can only run test carts, but fails
 * Kirby's Dream Land: Playable
 * Super Mario Land: Stage doesn't scroll
 * Link's Awakening: Playable
+* Kid Icarus: Playable
+* Final Fantasy Adventures: Playable
 
 ## Known Issues
 
 * Super mario land: Stages don't scroll
+* Final Fantasy Adventures: Bottom of Text Box is shifted right 8 pixels.
 * Dr Mario: The bugs at the bottom animate very fast
 * In 16x8 sprite mode, the bottom pixels will appear at the top.
 * No audio (unimplemented)
 
 ## Todo's
+
 * Pass all tests
 * Comb-through the Opcode table and package any repetitive code
 * Implement more memory controllers
