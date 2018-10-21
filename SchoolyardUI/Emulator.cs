@@ -67,7 +67,7 @@ namespace SchoolyardUI
             {
                 if(paused)
                 {
-                    System.Threading.Thread.Sleep(0); // Yield
+                    Thread.Sleep(0); // Yield
                     continue;
                 }
 
@@ -110,11 +110,7 @@ namespace SchoolyardUI
                 ppuRenderAutoReset.Reset();
 
                 sw.Restart();
-
-                // Get input
-                //sfmlWindow.DispatchEvents();
-                
-
+  
                 // Draw
                 sfmlWindow.Clear(SFML.Graphics.Color.Black); // Clear
                 sfmlWindow.SetView(gameboyView);
@@ -175,8 +171,9 @@ namespace SchoolyardUI
 
         }
 
-        public void ForceRedraw()
+        public void OnWindowResize()
         {
+            sfmlWindow.DispatchEvents();
             ppuRenderAutoReset.Set();
         }
 

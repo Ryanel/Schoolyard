@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,8 +16,8 @@ namespace SchoolyardUI
 {
     public partial class MainWindow : Form
     {
-        private const float Ratio = 160 / 144;
-
+        const double widthRatio = 160;
+        const double heightRatio = 144 + 16;
         private Debugger debugger;
        // private Gameboy gameboy;
 
@@ -41,7 +42,7 @@ namespace SchoolyardUI
             emulator = new Emulator(sfmlWindow);
 
             sfmlThread.RunWorkerAsync();
-            emulator.ForceRedraw();
+            emulator.OnWindowResize();
         }
 
         public void InitGraphics()
@@ -110,6 +111,21 @@ namespace SchoolyardUI
          * Winforms plumbing
          =================================*/
 
+        const int WM_SIZING = 0x214;
+        const int WMSZ_LEFT = 1;
+        const int WMSZ_RIGHT = 2;
+        const int WMSZ_TOP = 3;
+        const int WMSZ_BOTTOM = 6;
+
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFile();
@@ -120,10 +136,34 @@ namespace SchoolyardUI
             emulator.Stop();
         }
 
-        private void MainWindow_SizeChanged(object sender, EventArgs e)
+        protected override void WndProc(ref Message m)
         {
-            Height = (int)(Ratio * Width); // Maintain aspect ratio
-            emulator.ForceRedraw();
+            if (m.Msg == WM_SIZING) // Resize window while keeping aspect ratio
+            {
+                RECT rc = (RECT)Marshal.PtrToStructure(m.LParam, typeof(RECT));
+                int res = m.WParam.ToInt32();
+                if (res == WMSZ_LEFT || res == WMSZ_RIGHT)
+                {
+                    rc.Bottom = rc.Top + (int)(heightRatio * Width / widthRatio);
+                }
+                else if (res == WMSZ_TOP || res == WMSZ_BOTTOM)
+                {
+                    rc.Right = rc.Left + (int)(widthRatio * Height / heightRatio);
+                }
+                else if (res == WMSZ_RIGHT + WMSZ_BOTTOM)
+                {
+                    rc.Bottom = rc.Top + (int)(heightRatio * Width / widthRatio);
+                }
+                else if (res == WMSZ_LEFT + WMSZ_TOP)
+                {
+                    rc.Left = rc.Right - (int)(widthRatio * Height / heightRatio);
+                }
+                Marshal.StructureToPtr(rc, m.LParam, true);
+
+                emulator.OnWindowResize();
+            }
+
+            base.WndProc(ref m);
         }
 
         private void pauseToolStripMenuItem_Click(object sender, EventArgs e)
