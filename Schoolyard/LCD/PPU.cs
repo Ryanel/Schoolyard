@@ -315,11 +315,11 @@ namespace Schoolyard.LCD
             for (int i = 0; i < 40 && numSprites < 10; i++) {
                 // Read this sprite's properties
                 ushort objectAddress = (ushort)((i * 4) + 0xFE00);
-                byte yPosition = (byte)(oam.Read8((ushort)(objectAddress + 0)) - 16);
-                byte xPosition = (byte)(oam.Read8((ushort)(objectAddress + 1)) - 8);
-                byte tileIndex = oam.Read8((ushort)(objectAddress + 2));
-                byte flags = oam.Read8((ushort)(objectAddress + 3));
-                byte height = regs.LCDSpriteSize ? (byte)16 : (byte)8;
+                byte yPosition       = (byte)(oam.Read8((ushort)(objectAddress + 0)) - 16);
+                byte xPosition       = (byte)(oam.Read8((ushort)(objectAddress + 1)) - 8);
+                byte tileIndex       = oam.Read8((ushort)(objectAddress + 2));
+                byte flags           = oam.Read8((ushort)(objectAddress + 3));
+                byte height          = regs.LCDSpriteSize ? (byte)16 : (byte)8;
 
                 int top = yPosition;
                 int bottom = top + height;
@@ -334,11 +334,14 @@ namespace Schoolyard.LCD
                     bool aboveBackground  = (flags & 0b10000000) != 0;
 
                     int vLine = currentLine - top;
+
+                    // Handle Vertical Mirroring
                     if (verticalMirror) {
-                        vLine -= height;
+                        vLine -= height - 1;
                         vLine *= -1;
                     }
 
+                    // Load Object Palette
                     byte[] objectPallete;
                     if (palette1) {
                         objectPallete = regs.objPalette0; 
@@ -353,7 +356,9 @@ namespace Schoolyard.LCD
                         if(horizontalMirror) { tileX = 7 - x; }
 
                         byte color = tiles[tileIndex + (vLine < 8 ? 0:1), (vLine % 8), tileX % 8];
-                        if (color == 0) { continue; }
+                        if (color == 0) { // Color 0 is transparent, skip output.
+                            continue;
+                        } 
                         int pos = xPosition + x;
                         // Output sprite
                         if (pos < width && pos >= 0) {
@@ -381,7 +386,7 @@ namespace Schoolyard.LCD
         private void OnRenderComplete()
         {
             framesRendered++;
-            if(OnDisplayRendered != null) { OnDisplayRendered.Invoke(this, null); }
+            OnDisplayRendered?.Invoke(this, null);
         }
     }
 }
