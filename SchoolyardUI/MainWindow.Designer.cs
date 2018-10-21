@@ -121,7 +121,7 @@
             // 
             // sfmlThread
             // 
-            this.sfmlThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.smflDisplayThread_DoWork);
+            this.sfmlThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SMFLDisplayThread_DoWork);
             // 
             // emulationThread
             // 
